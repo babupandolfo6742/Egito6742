@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kemet: O Despertar do Nilo</title>
+    <style>
+        :root {
+            --cor-papiro: #f4ecd8;
+            --cor-papiro-escura: #e5d8b8;
+            --cor-areia: #e2b13c;
+            --cor-ocre: #b85c19;
+            --cor-azul-nilo: #1a759f;
+            --cor-verde-oasis: #38b000;
+            --cor-texto: #2b2214;
+        }
+
+        * {
+            box-sizing: border-box;
+            user-select: none;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #111;
+            color: var(--cor-texto);
+        }
+
+        #interface-jogo {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* TELA DE INTRODUÇÃO / VITÓRIA */
+        .tela-modal {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .papiro-container {
+            background-color: var(--cor-papiro);
+            border: 8px double var(--cor-ocre);
+            border-radius: 4px;
+            padding: 30px;
+            max-width: 650px;
+            text-align: center;
+            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1, h2, h3 {
+            color: var(--cor-ocre);
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border-bottom: 2px solid var(--cor-papiro-escura);
+            padding-bottom: 5px;
+        }
+
+        p {
+            font-size: 16px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+
+        .btn-egipcio {
+            background-color: var(--cor-ocre);
+            color: white;
+            border: 2px solid var(--cor-areia);
+            padding: 12px 30px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.2s;
+        }
+
+        .btn-egipcio:hover {
+            background-color: var(--cor-areia);
+            color: var(--cor-texto);
+        }
+
+        /* BARRA SUPERIOR DE RECURSOS */
+        #barra-recursos {
+            background-color: var(--cor-papiro);
+            border-bottom: 4px solid var(--cor-areia);
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            padding: 8px 15px;
+            gap: 10px;
+            font-size: 14px;
+            font-weight: bold;
+            z-index: 10;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        .recurso-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background: rgba(255,255,255,0.4);
+            padding: 4px;
+            border-radius: 3px;
+            border: 1px solid var(--cor-papiro-escura);
+        }
+
+        .recurso-item span:first-child {
+            font-size: 11px;
+            color: #665544;
+            text-transform: uppercase;
+        }
+
+        /* PALCO PRINCIPAL (CANVAS E ABAS) */
+        #area-central {
+            flex: 1;
+            position: relative;
+            display: flex;
+            overflow: hidden;
+        }
+
+        canvas {
+            flex: 1;
+            background-color: #e5c17a;
+            cursor: crosshair;
+        }
+
+        /* PAINEL LATERAL DE GERENCIAMENTO */
+        #painel-controle {
+            width: 380px;
+            background-color: var(--cor-papiro);
+            border-left: 4px solid var(--cor-areia);
+            display: flex;
+            flex-direction: column;
+            z-index: 10;
+        }
+
+        .abas-navegacao {
+            display: flex;
+            background: var(--cor-papiro-escura);
+        }
+
+        .aba-btn {
+            flex: 1;
+            padding: 12px 5px;
+            border: none;
+            background: none;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 12px;
+            text-transform: uppercase;
+            border-bottom: 2px solid transparent;
+        }
+
+        .aba-btn.ativa {
+            background: var(--cor-papiro);
+            border-bottom: 3px solid var(--cor-ocre);
+            color: var(--cor-ocre);
+        }
+
+        .conteudo-aba {
+            display: none;
+            padding: 15px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .conteudo-aba.ativa {
+            display: block;
+        }
+
+        /* CARDS DE CONSTRUÇÃO E PESQUISA */
+        .card-acao {
+            background: rgba(255,255,255,0.6);
+            border: 1px solid var(--cor-papiro-escura);
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .card-acao h4 {
+            color: var(--cor-ocre);
+            margin-bottom: 5px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .card-acao p {
+            font-size: 13px;
+            margin-bottom: 8px;
+            text-align: left;
+        }
+
+        .custo-lista {
+            font-size: 11px;
+            color: #554433;
+            margin-bottom: 8px;
+            font-style: italic;
+        }
+
+        .btn-acao {
+            width: 100%;
+            background: var(--cor-azul-nilo);
+            color: white;
+            border: none;
+            padding: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            text-transform: uppercase;
+            font-size: 12px;
+        }
+
+        .btn-acao:disabled {
+            background: #aaa;
+            cursor: not-allowed;
+        }
+
+        /* NOTIFICAÇÕES EM TEMPO REAL */
+        #痛-notificacoes {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            width: 320px;
+            max-height: 200px;
+            overflow-hidden: hidden;
+            display: flex;
+            flex-direction: column-reverse;
+            gap: 5px;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        .alerta {
+            background: rgba(43, 34, 20, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            font-size: 12px;
+            border-left: 4px solid var(--cor-areia);
+            animation: surgir 0.3s ease-out;
+        }
+
+        .alerta.urgente {
+            border-left-color: red;
+        }
+
+        @keyframes surgir {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* TRACKING DE PROGRESSO VITÓRIA */
+        .progresso-container {
+            margin-bottom: 10px;
+        }
+        .barra-progresso {
+            width: 100%;
+            background: #ddd;
+            height: 12px;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-top: 4px;
+            border: 1px solid #aaa;
+        }
+        .progresso-preenchido {
+            height: 100%;
+            background: var(--cor-verde-oasis);
+            width: 0%;
+            transition: width 0.4s;
+        }
+    </style>
+</head>
+<body>
+
+<div id="interface-jogo">
+
+    <div id="tela-intro" class="tela-modal">
+        <div class="papiro-container">
+            <h1>Kemet: O Despertar do Nilo</h1>
+            <p>Saudações, Nobre Faraó! Você recebeu o comando de um modesto assentamento às margens férteis do Rio Nilo. Seu povo depende da sua sabedoria para governar perante as cheias, secas e perigos do deserto.</p>
+            <p><strong>Sua Missão Suprema:</strong> A grandeza de uma civilização eterna não se mede apenas pela força de suas espadas, mas pela luz do seu conhecimento. Conduza seu povo rumo à vitória imortal desenvolvendo os <strong>Hieróglifos (Escrita)</strong> e fundando os pilares da <strong>Medicina Egípcia</strong>.</p>
+            <button class="btn-egipcio" onclick="iniciarJogo()">Iniciar Dinastia</button>
+        </div>
+    </div>
+
+    <div id="tela-vitoria" class="tela-modal" style="display: none;">
+        <div class="papiro-container">
+            <h1 style="color: var(--cor-verde-oasis);">Vitória Eterna!</h1>
+            <p><strong>O Legado de Kemet está Selado!</strong> Sob o seu comando supremo, os escribas organizaram o conhecimento em hieróglifos sagrados na Grande Biblioteca, registrando as leis e a história do mundo. Simultaneamente, na Casa da Vida, os médicos-sacerdotes decifraram os mistérios do corpo humano, dominando cirurgias e tratamentos que ecoarão através dos milênios.</p>
+            <p>O Egito ergueu-se de uma simples aldeia de pescadores para se tornar o farol cultural da humanidade. O tempo teme as Pirâmides, e a história lembrará para sempre o seu nome!</p>
+            <button class="btn-egipcio" onclick="reprocurarOuReiniciar()">Jogar Novamente</button>
+        </div>
+    </div>
+
+    <div id="barra-recursos">
+        <div class="recurso-item"><span id="lbl-estacao">Estação</span><span id="res-ciclo">Akhet (Cheia)</span></div>
+        <div class="recurso-item"><span>Alimento</span><span id="res-alimento">500</span></div>
+        <div class="recurso-item"><span>Água</span><span id="res-agua">300</span></div>
+        <div class="recurso-item"><span>Tijolos</span><span id="res-tijolo">100</span></div>
+        <div class="recurso-item"><span>Madeira</span><span id="res-madeira">50</span></div>
+        <div class="recurso-item"><span>Papiro</span><span id="res-papiro">0</span></div>
+        <div class="recurso-item"><span>Pedra</span><span id="res-pedra">0</span></div>
+        <div class="recurso-item"><span>Ouro</span><span id="res-ouro">50</span></div>
+        <div class="recurso-item"><span>População</span><span id="res-populacao">10 / 10</span></div>
+        <div class="recurso-item"><span>Fé / Felicidade</span><span id="res-fe">100%</span></div>
+    </div>
+
+    <div id="area-central">
+        <canvas id="canvas-mapa"></canvas>
+
+        <div id="painel-controle">
+            <div class="abas-navegacao">
+                <button class="aba-btn ativa" onclick="mudarAba('aba-construcao')">Construir</button>
+                <button class="aba-btn" onclick="mudarAba('aba-cultura')">Cultura & Vitória</button>
+                <button class="aba-btn" onclick="mudarAba('aba-governo')">Decretos & Defesa</button>
+            </div>
+
+            <div id="aba-construcao" class="conteudo-aba ativa">
+                <h3>Infraestrutura da Aldeia</h3>
+                <div id="lista-construcoes"></div>
+            </div>
+
+            <div id="aba-cultura" class="conteudo-aba">
+                <h3>Marcos Literários e Científicos</h3>
+                <p style="font-size: 12px; color: #555;">Complete os requisitos e pesquise os ramos abaixo para vencer o jogo.</p>
+                
+                <div class="card-acao">
+                    <h4>1. Escrita (Hieróglifos)</h4>
+                    <div class="progresso-container">
+                        Fase atual: <strong id="txt-fase-escrita">Nenhuma</strong>
+                        <div class="barra-progresso"><div id="prog-escrita" class="progresso-preenchido"></div></div>
+                    </div>
+                    <div class="custo-lista" id="custo-escrita">Requer: Casa dos Escribas</div>
+                    <button class="btn-acao" id="btn-evoluir-escrita" onclick="desenvolverEscrita()">Evoluir Escrita</button>
+                </div>
+
+                <div class="card-acao">
+                    <h4>2. Medicina Egípcia</h4>
+                    <div class="progresso-container">
+                        Fase atual: <strong id="txt-fase-medicina">Nenhuma</strong>
+                        <div class="barra-progresso"><div id="prog-medicina" class="progresso-preenchido"></div></div>
+                    </div>
+                    <div class="custo-lista" id="custo-medicina">Requer: Casa da Vida</div>
+                    <button class="btn-acao" id="btn-evoluir-medicina" onclick="desenvolverMedicina()">Evoluir Medicina</button>
+                </div>
+            </div>
+
+            <div id="aba-governo" class="conteudo-aba">
+                <h3>Decretos do Faraó</h3>
+                <div class="card-acao">
+                    <h4>Foco Econômico</h4>
+                    <p>Mude as prioridades do reino para alterar bônus de produção de sua população ativa.</p>
+                    <select id="sel-decreto" onchange="atualizarDecreto()" style="width:100%; padding:5px; background:white; font-weight:bold;">
+                        <option value="equilibrado">Decreto Equilibrado (Padrão)</option>
+                        <option value="racoes">Rações Fartas (+Felicidade, -Alimento)</option>
+                        <option value="mutirao">Mutirão Imperial (+Tijolo e Pedra, -Felicidade)</option>
+                        <option value="oracao">Orações Intercessoras (+Fé, -Coleta de Materiais)</option>
+                    </select>
+                </div>
+
+                <h3>Guarnição e Defesa</h3>
+                <div class="card-acao">
+                    <h4>Força Militar: <span id="txt-milicia">0</span> Soldados</h4>
+                    <p>Essencial para repelir hicsos, nômades e saques do deserto.</p>
+                    <div class="custo-lista">Custo: 30 Alimentos, 10 Tijolos por Unidade</div>
+                    <button class="btn-acao" onclick="treinarSoldado()">Recrutar Soldado</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="痛-notificacoes"></div>
+
+</div>
+
+<script>
+    // --- VARIÁVEIS DE ESTADO DO JOGO ---
+    const jogo = {
+        recursos: {
+            alimento: 500,
+            agua: 300,
+            tijolo: 150,
+            madeira: 80,
+            papiro: 0,
+            pedra: 0,
+            ouro: 50,
+            populacao: 12,
+            maxPopulacao: 15,
+            fe: 100, // Felicidade/Fé combinada
+            soldados: 0
+        },
+        estacoes: ['Akhet (Cheia)', 'Peret (Semeadura)', 'Shemu (Colheita)'],
+        estacaoAtualIdx: 0,
+        tempoNoCiclo: 0,
+        duracaoEstacao: 250, // ciclos de loop (~12 segundos por estação)
+        decreto: 'equilibrado',
+        
+        // Progresso de Vitória
+        progressoEscrita: 0,
+        fasesEscrita: [
+            'Sem Escrita', 
+            'Casa dos Escribas Construída', 
+            'Pictogramas Iniciais', 
+            'Hieróglifos Complexos', 
+            'Grande Biblioteca do Templo'
+        ],
+        progressoMedicina: 0,
+        fasesMedicina: [
+            'Sem Medicina', 
+            'Casa da Vida Erguida', 
+            'Anatomia & Tratamento Básico', 
+            'Uso Avançado de Ervas e Antissépticos', 
+            'Tratado Médico Concluído (Papiro de Ebers)'
+        ],
+
+        // Edificações construídas
+        construcoes: {
+            casas: 2,
+            shaduf: 1,
+            campos: 1,
+            casaEscribas: 0,
+            casaVida: 0,
+            pedreira: 0
+        }
+    };
+
+    // Definição das construções disponíveis
+    const dadosConstrucao = {
+        casas: { nome: "Cabana de Barro", desc: "+5 Espaço de População.", custo: { tijolo: 40, madeira: 15 }, construida: 2 },
+        shaduf: { nome: "Shaduf (Irrigação)", desc: "+Água constante a cada ciclo.", custo: { madeira: 30, tijolo: 20 }, construida: 1 },
+        campos: { nome: "Campos Irrigados", desc: "Produz muito Alimento em Peret e Shemu.", custo: { agua: 50, tijolo: 30 }, construida: 1 },
+        pedreira: { nome: "Posto de Mineração", desc: "Permite extração de Pedra Calcária do deserto.", custo: { madeira: 40, tijolo: 50 }, construida: 0 },
+        casaEscribas: { nome: "Casa dos Escribas", desc: "Desbloqueia os avanços da Escrita Egípcia.", custo: { tijolo: 100, madeira: 50, ouro: 20 }, construida: 0, unica: true },
+        casaVida: { nome: "Casa da Vida (Per Ankh)", desc: "Desbloqueia estudos médicos avancados.", custo: { tijolo: 120, pedra: 50, ouro: 40 }, construida: 0, unica: true }
+    };
+
+    // --- ENGINE GRÁFICA (CANVAS 2.5D SIMPLIFICADO) ---
+    const canvas = document.getElementById('canvas-mapa');
+    const ctx = canvas.getContext('2d');
+
+    function redimensionarCanvas() {
+        canvas.width = canvas.parentElement.clientWidth;
+        canvas.height = canvas.parentElement.clientHeight;
+    }
+    window.addEventListener('resize', redimensionarCanvas);
+
+    function desenharMundo() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        let w = canvas.width;
+        let h = canvas.height;
+
+        // 1. Desenhar o Deserto de fundo
+        ctx.fillStyle = '#e2b13c'; 
+        ctx.fillRect(0, 0, w, h);
+
+        // 2. Desenhar a faixa fértil do Rio Nilo (Eixo central e margens)
+        // Muda de tamanho dependendo da estação (Akhet fica maior)
+        let larguraNilo = w * 0.22;
+        if (jogo.estacaoAtualIdx === 0) larguraNilo = w * 0.32; // Inundação
+        if (jogo.estacaoAtualIdx === 2) larguraNilo = w * 0.16; // Seca
+
+        // Terra Roxa/Fértil (Kemet)
+        ctx.fillStyle = '#3d2b1f';
+        ctx.fillRect(w*0.35 - larguraNilo/2, 0, larguraNilo * 2, h);
+
+        // Água do Rio Nilo
+        ctx.fillStyle = jogo.estacaoAtualIdx === 0 ? '#145a7a' : '#1a759f';
+        ctx.fillRect(w*0.45, 0, larguraNilo, h);
+
+        // Linhas de detalhe do fluxo do rio
+        ctx.strokeStyle = 'rgba(255,255,255,0.15)';
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.moveTo(w*0.5, 0); ctx.lineTo(w*0.48, h);
+        ctx.moveTo(w*0.54, 0); ctx.lineTo(w*0.53, h);
+        ctx.stroke();
+
+        // 3. Renderizar elementos Isométricos/Estilizados simulando a vila
+        desenharElementoVila(w * 0.40, h * 0.2, 'Nilo', '#fff', 10); 
+        
+        // Renderiza ícones de acordo com o nível construído
+        if(jogo.construcoes.campos > 0) {
+            ctx.fillStyle = jogo.estacaoAtualIdx === 1 ? '#38b000' : '#8c6239'; // Verde na semeadura
+            for(let i=0; i < Math.min(jogo.construcoes.campos, 4); i++) {
+                ctx.fillRect(w*0.32 - (i*15), h*0.3 + (i*40), 35, 25);
+                ctx.strokeStyle = '#222';
+                ctx.strokeRect(w*0.32 - (i*15), h*0.3 + (i*40), 35, 25);
+            }
+        }
+
+        // Construções Civis (Quadrados ocres com telhado plano)
+        ctx.fillStyle = '#d4a373';
+        let totalCasas = jogo.construcoes.casas;
+        for(let i=0; i<totalCasas; i++) {
+            let cx = w * 0.22 + (i % 3) * 35;
+            let cy = h * 0.4 + Math.floor(i / 3) * 40;
+            ctx.fillRect(cx, cy, 25, 20);
+            ctx.fillStyle = '#b5835a';
+            ctx.fillRect(cx + 2, cy - 6, 21, 6); // Porta/Teto
+            ctx.fillStyle = '#d4a373';
+        }
+
+        // Prédios Importantes
+        if(jogo.construcoes.casaEscribas > 0) {
+            ctx.fillStyle = '#457b9d';
+            ctx.fillRect(w * 0.25, h * 0.15, 45, 35);
+            ctx.fillStyle = '#f1faee';
+            ctx.font = '10px Courier';
+            ctx.fillText("𓁺 ESC", w * 0.25 + 2, h * 0.15 + 20);
+        }
+
+        if(jogo.construcoes.casaVida > 0) {
+            ctx.fillStyle = '#e63946';
+            ctx.fillRect(w * 0.20, h * 0.7, 50, 40);
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px sans-serif';
+            ctx.fillText("𓋹 MED", w * 0.20 + 5, h * 0.7 + 25);
+        }
+
+        // Elementos decorativos naturais (Oásis / Palmeiras simbólicas)
+        ctx.fillStyle = '#2d6a4f';
+        ctx.beginPath(); ctx.arc(w*0.1, h*0.2, 15, 0, Math.PI*2); ctx.fill(); // Oásis esquerdo
+        ctx.fillStyle = '#1a759f';
+        ctx.beginPath(); ctx.arc(w*0.1, h*0.2, 7, 0, Math.PI*2); ctx.fill();
+
+        // Soldados de Patrulha
+        if(jogo.recursos.soldados > 0) {
+            ctx.fillStyle = '#d90429';
+            for(let m=0; m < Math.min(jogo.recursos.soldados, 5); m++) {
+                ctx.beginPath();
+                ctx.arc(w*0.35 + (m*10), h*0.6 + (m*5), 4, 0, Math.PI*2);
+                ctx.fill();
+            }
+        }
+    }
+
+    function desenharElementoVila(x, y, texto, cor, tam) {
+        ctx.fillStyle = cor;
+        ctx.font = "bold 12px sans-serif";
+    }
+
+    // --- GERENCIAMENTO DE ABAS DA INTERFACE ---
+    function mudarAba(idAba) {
+        document.querySelectorAll('.conteudo-aba').forEach(el => el.classList.remove('ativa'));
+        document.querySelectorAll('.aba-btn').forEach(el => el.classList.remove('ativa'));
+        
+        document.getElementById(idAba).classList.add('ativa');
+        event.target.classList.add('ativa');
+    }
+
+    // --- ADICIONAR NOTIFICAÇÕES NA TELA ---
+    function emitirNotificacao(texto, urgente = false) {
+        const box = document.getElementById('痛-notificacoes');
+        const alerta = document.createElement('div');
+        alerta.className = `alerta ${urgente ? 'urgente' : ''}`;
+        alerta.innerText = `[${jogo.estacoes[jogo.estacaoAtualIdx].split(' ')[0]}] ${texto}`;
+        
+        box.appendChild(alerta);
+        
+        // Remove automaticamente após 6 segundos
+        setTimeout(() => {
+            alerta.style.opacity = '0';
+            setTimeout(() => alerta.remove(), 300);
+        }, 6000);
+    }
+
+    // --- RENDERIZAÇÃO DA LISTA DE CONSTRUÇÕES ---
+    function renderizarListaConstrucoes() {
+        const div = document.getElementById('lista-construcoes');
+        div.innerHTML = '';
+
+        for (let chave in dadosConstrucao) {
+            let b = dadosConstrucao[chave];
+            let qtdAtual = jogo.construcoes[chave];
+
+            if(b.unica && qtdAtual >= 1) continue; // Prédios únicos ocultados após construção
+
+            let divCard = document.createElement('div');
+            divCard.className = 'card-acao';
+
+            // String do custo
+            let stringCusto = "Custo: ";
+            for(let r in b.custo) {
+                stringCusto += `${b.custo[r]} ${r.toUpperCase()} | `;
+            }
+
+            divCard.innerHTML = `
+                <h4>${b.nome} <span>(${qtdAtual})</span></h4>
+                <p>${b.desc}</p>
+                <div class="custo-lista">${stringCusto.slice(0, -3)}</div>
+                <button class="btn-acao" onclick="construirEdificio('${chave}')">Erguer</button>
+            `;
+            div.appendChild(divCard);
+        }
+    }
+
+    // --- MECÂNICA DE CONSTRUÇÃO ---
+    function construirEdificio(chave) {
+        let b = dadosConstrucao[chave];
+        
+        // Verificar recursos
+        for(let r in b.custo) {
+            if((jogo.recursos[r] || 0) < b.custo[r]) {
+                emitirNotificacao(`Recursos insuficientes de ${r}!`, true);
+                return;
+            }
+        }
+
+        // Deduzir custos
+        for(let r in b.custo) {
+            jogo.recursos[r] -= b.custo[r];
+        }
+
+        // Aplicar efeitos colaterais imediatos
+        jogo.construcoes[chave]++;
+        if(chave === 'casas') jogo.recursos.maxPopulacao += 5;
+        if(chave === 'casaEscribas') jogo.progressoEscrita = 1;
+        if(chave === 'casaVida') jogo.progressoMedicina = 1;
+
+        emitirNotificacao(`${b.nome} construído com sucesso!`);
+        atualizarInterface();
+        renderizarListaConstrucoes();
+        desenharMundo();
+    }
+
+    // --- EVOLUÇÕES CULTURAIS (CONDIÇÃO DE VITÓRIA) ---
+    function atualizarPainelCultura() {
+        // Escrita
+        document.getElementById('txt-fase-escrita').innerText = jogo.fasesEscrita[jogo.progressoEscrita];
+        let pctEscrita = (jogo.progressoEscrita / (jogo.fasesEscrita.length - 1)) * 100;
+        document.getElementById('prog-escrita').style.width = `${pctEscrita}%`;
+
+        let btnEscrita = document.getElementById('btn-evolyir-escrita');
+        let custoE = document.getElementById('custo-escrita');
+        
+        if(jogo.progressoEscrita === 0) {
+            custoE.innerText = "Bloqueado: Requer construir a Casa dos Escribas.";
+            btnEscrita.disabled = true;
+        } else if(jogo.progressoEscrita === 4) {
+            custoE.innerText = "Conquista Máxima Atingida!";
+            btnEscrita.disabled = true;
+        } else {
+            let proximoNivel = jogo.progressoEscrita + 1;
+            let custoPapiro = proximoNivel * 40;
+            let custoOuro = proximoNivel * 15;
+            custoE.innerText = `Requer: ${custoPapiro} Papiro, ${custoOuro} Ouro e 2 Cidadãos livres`;
+            btnEscrita.disabled = false;
+        }
+
+        // Medicina
+        document.getElementById('txt-fase-medicina').innerText = jogo.fasesMedicina[jogo.progressoMedicina];
+        let pctMedicina = (jogo.progressoMedicina / (jogo.fasesMedicina.length - 1)) * 100;
+        document.getElementById('prog-medicina').style.width = `${pctMedicina}%`;
+
+        let btnMedicina = document.getElementById('btn-evolyir-medicina');
+        let custoM = document.getElementById('custo-medicina');
+
+        if(jogo.progressoMedicina === 0) {
+            custoM.innerText = "Bloqueado: Requer construir a Casa da Vida.";
+            btnMedicina.disabled = true;
+        } else if(jogo.progressoMedicina === 4) {
+            custoM.innerText = "Conquista Máxima Atingida!";
+            btnMedicina.disabled = true;
+        } else {
+            let proximoNivel = jogo.progressoMedicina + 1;
+            let custoAlimento = proximoNivel * 60;
+            let custoPedra = proximoNivel * 25;
+            custoM.innerText = `Requer: ${custoAlimento} Alimento, ${custoPedra} Pedra (Necessita Escrita nível 2+)`;
+            btnMedicina.disabled = false;
+        }
+    }
+
+    function desenvolverEscrita() {
+        let proximoNivel = jogo.progressoEscrita + 1;
+        let custoPapiro = proximoNivel * 40;
+        let custoOuro = proximoNivel * 15;
+
+        if(jogo.recursos.papiro >= custoPapiro && jogo.recursos.ouro >= custoOuro && jogo.recursos.populacao >= 2) {
+            jogo.recursos.papiro -= custoPapiro;
+            jogo.recursos.ouro -= custoOuro;
+            jogo.progressoEscrita++;
+            emitirNotificacao(`Avanço Cultural: Desenvolveu ${jogo.fasesEscrita[jogo.progressoEscrita]}!`);
+            verificarCondicaoVitoria();
+            atualizarInterface();
+        } else {
+            emitirNotificacao("Faltam insumos ou escribas dedicados para realizar esta pesquisa.", true);
+        }
+    }
+
+    function desenvolverMedicina() {
+        if(jogo.progressoEscrita < 2) {
+            emitirNotificacao("Sua civilização precisa de Escrita Básica (Pictogramas) para registrar tratados médicos!", true);
+            return;
+        }
+
+        let proximoNivel = jogo.progressoMedicina + 1;
+        let custoAlimento = proximoNivel * 60;
+        let custoPedra = proximoNivel * 25;
+
+        if(jogo.recursos.alimento >= custoAlimento && jogo.recursos.pedra >= custoPedra) {
+            jogo.recursos.alimento -= custoAlimento;
+            jogo.recursos.pedra -= custoPedra;
+            jogo.progressoMedicina++;
+            emitirNotificacao(`Avanço Científico: Conquistou ${jogo.fasesMedicina[jogo.progressoMedicina]}!`);
+            verificarCondicaoVitoria();
+            atualizarInterface();
+        } else {
+            emitirNotificacao("Alimentos ou Pedras insuficientes para os laboratórios da Casa da Vida.", true);
+        }
+    }
+
+    // --- DECRETOS E MILITARISMO ---
+    function atualizarDecreto() {
+        jogo.decreto = document.getElementById('sel-decreto').value;
+        emitirNotificacao(`Novo decreto emitido pelo Faraó: Foco em ${jogo.decreto}.`);
+    }
+
+    function treinarSoldado() {
+        if(jogo.recursos.alimento >= 30 && jogo.recursos.tijolo >= 10) {
+            jogo.recursos.alimento -= 30;
+            jogo.recursos.tijolo -= 10;
+            jogo.recursos.soldados++;
+            document.getElementById('txt-milicia').innerText = jogo.recursos.soldados;
+            emitirNotificacao("Uma nova guarnição de soldados com machados Khopesh foi treinada.");
+            atualizarInterface();
+            desenharMundo();
+        } else {
+            emitirNotificacao("Recursos insuficientes para armar soldados.", true);
+        }
+    }
+
+    // --- LOOP PRINCIPAL DE SIMULAÇÃO (TEMPO REAL) ---
+    function atualizarInterface() {
+        document.getElementById('res-ciclo').innerText = jogo.estacoes[jogo.estacaoAtualIdx];
+        document.getElementById('res-alimento').innerText = Math.floor(jogo.recursos.alimento);
+        document.getElementById('res-agua').innerText = Math.floor(jogo.recursos.agua);
+        document.getElementById('res-tijolo').innerText = Math.floor(jogo.recursos.tijolo);
+        document.getElementById('res-madeira').innerText = Math.floor(jogo.recursos.madeira);
+        document.getElementById('res-papiro').innerText = Math.floor(jogo.recursos.papiro);
+        document.getElementById('res-pedra').innerText = Math.floor(jogo.recursos.pedra);
+        document.getElementById('res-ouro').innerText = Math.floor(jogo.recursos.ouro);
+        document.getElementById('res-populacao').innerText = `${jogo.recursos.populacao} / ${jogo.recursos.maxPopulacao}`;
+        document.getElementById('res-fe').innerText = `${jogo.recursos.fe}%`;
+        
+        atualizarPainelCultura();
+    }
+
+    function rodarLoopJogo() {
+        jogo.tempoNoCiclo++;
+
+        // Controle de Estações do Nilo
+        if(jogo.tempoNoCiclo >= jogo.duracaoEstacao) {
+            jogo.tempoNoCiclo = 0;
+            jogo.estacaoAtualIdx = (jogo.estacaoAtualIdx + 1) % 3;
+            emitirNotificacao(`Atenção! Entramos na estação de ${jogo.estacoes[jogo.estacaoAtualIdx]}`, false);
+            executarMudancaEstacao();
+            desenharMundo();
+        }
+
+        // 1. Geração Passiva / Trabalho da População por ciclo
+        processarEconomiaPassiva();
+
+        // 2. Eventos Aleatórios Críticos (Chance pequena por tick)
+        if(Math.random() < 0.0015) {
+            dispararEventoAleatorio();
+        }
+
+        atualizarInterface();
+        
+        // Mantém o jogo rodando em tempo real
+        requestAnimationFrame(rodarLoopJogo);
+    }
+
+    function processarEconomiaPassiva() {
+        let estacao = jogo.estacaoAtualIdx; // 0: Akhet, 1: Peret, 2: Shemu
+        let popAtiva = jogo.recursos.populacao;
+
+        // Fatores de Decreto
+        let modFe = 1;
+        let modProd = 1;
+        if(jogo.decreto === 'racoes') { jogo.recursos.alimento -= 0.1; modFe = 1.2; }
+        if(jogo.decreto === 'mutirao') { modProd = 1.4; modFe = 0.8; }
+        if(jogo.decreto === 'oracao') { jogo.recursos.fe = Math.min(100, jogo.recursos.fe + 0.1); modProd = 0.7; }
+
+        // Consumo de sobrevivência básico
+        jogo.recursos.alimento -= (popAtiva * 0.015);
+        jogo.recursos.agua -= (popAtiva * 0.02);
+
+        // Produção de Água (Baseada em Shadufs e Nilo)
+        let producaoAgua = (jogo.construcoes.shaduf * 0.4) + 0.2;
+        if (estacao === 2) producaoAgua *= 0.5; // Seca diminui captação
+        jogo.recursos.agua += producaoAgua * modProd;
+
+        // Produção de Alimentos (Altamente dependente das estações)
+        let prodAlim = 0;
+        if(estacao === 0) { // Akhet - Cheia (Caça no deserto e pesca adaptada)
+            prodAlim = popAtiva * 0.02;
+        } else if(estacao === 1) { // Peret - Semeadura nos campos fertilizados
+            prodAlim = (jogo.construcoes.campos * 0.4) + (popAtiva * 0.03);
+        } else if(estacao === 2) { // Shemu - Grande Colheita!
+            prodAlim = (jogo.construcoes.campos * 1.2) + (popAtiva * 0.05);
+        }
+        jogo.recursos.alimento += prodAlim * modProd;
+
+        // Produção de Materiais Secundários
+        jogo.recursos.tijolo += (popAtiva * 0.01) * modProd; // Barro das margens
+        jogo.recursos.madeira += (popAtiva * 0.005);
+        
+        // Papiro nasce nas margens do Nilo
+        if (estacao === 0 || estacao === 1) jogo.recursos.papiro += 0.04;
+
+        // Mineração de Pedra (Se tiver o posto)
+        if(jogo.construcoes.pedreira > 0) {
+            jogo.recursos.pedra += (jogo.construcoes.pedreira * 0.08) * modProd;
+            if(Math.random() < 0.05) jogo.recursos.ouro += 0.2; // Ouro acidental nas minas
+        }
+
+        // Crescimento demográfico natural se houver comida e espaço
+        if(jogo.recursos.alimento > 100 && jogo.recursos.populacao < jogo.recursos.maxPopulacao && Math.random() < 0.002) {
+            jogo.recursos.populacao++;
+            emitirNotificacao("Uma nova família se instalou nas margens da sua aldeia.");
+            desenharMundo();
+        }
+
+        // Game Over suave por fome extrema
+        if(jogo.recursos.alimento <= 0 || jogo.recursos.agua <= 0) {
+            jogo.recursos.alimento = Math.max(0, jogo.recursos.alimento);
+            jogo.recursos.agua = Math.max(0, jogo.recursos.agua);
+            jogo.recursos.fe = Math.max(0, jogo.recursos.fe - 0.2);
+            if(Math.random() < 0.01 && jogo.recursos.populacao > 2) {
+                jogo.recursos.populacao--;
+                emitirNotificacao("Cidadãos abandonaram a cidade ou faleceram devido à escassez extrema!", true);
+            }
+        }
+    }
+
+    function executarMudancaEstacao() {
+        if(jogo.estacaoAtualIdx === 0) { // Entrada na Cheia
+            // Risco de danificar construções muito próximas ao leito
+            if(Math.random() < 0.4 && jogo.construcoes.campos > 0) {
+                jogo.construcoes.campos--;
+                emitirNotificacao("As cheias violentas do Nilo destruíram um dos seus campos agrícolas beira-rio!", true);
+                renderizarListaConstrucoes();
+            } else {
+                emitirNotificacao("O lodo fértil cobre as terras do vale. Momento ideal para focar em obras públicas.");
+            }
+        }
+    }
+
+    // --- SISTEMA DE EVENTOS DINÂMICOS ---
+    function dispararEventoAleatorio() {
+        const dadosEventos = [
+            {
+                titulo: "Ataque de Saqueadores Hicsos",
+                acao: () => {
+                    let poderDefesa = jogo.recursos.soldados * 3;
+                    if(poderDefesa >= 6) {
+                        jogo.recursos.soldados = Math.max(0, jogo.recursos.soldados - 1);
+                        emitirNotificacao("Guerreiros Hicsos atacaram o deserto oriental, mas sua guarnição os repeliu! Perdemos 1 soldado.", false);
+                    } else {
+                        jogo.recursos.alimento = Math.max(0, jogo.recursos.alimento - 120);
+                        jogo.recursos.ouro = Math.max(0, jogo.recursos.ouro - 20);
+                        emitirNotificacao("Saqueadores invadiram a vila desprotegida! Roubaram suprimentos e ouro.", true);
+                    }
+                    document.getElementById('txt-milicia').innerText = jogo.recursos.soldados;
+                }
+            },
+            {
+                titulo: "Praga de Gafanhotos",
+                acao: () => {
+                    if(jogo.estacaoAtualIdx === 2) { // Na colheita dói mais
+                        jogo.recursos.alimento = Math.max(0, jogo.recursos.alimento - 200);
+                        emitirNotificacao("Uma nuvem de gafanhotos devorou os campos prontos para colheita!", true);
+                    } else {
+                        emitirNotificacao("Gafanhotos cruzaram os céus, mas causaram poucos danos fora da temporada.");
+                    }
+                }
+            },
+            {
+                titulo: "Bênção de Ísis",
+                acao: () => {
+                    jogo.recursos.fe = Math.min(100, jogo.recursos.fe + 20);
+                    jogo.recursos.alimento += 100;
+                    emitirNotificacao("Os sacerdotes reportaram presságios milagrosos. O povo está revigorado e farto.");
+                }
+            },
+            {
+                titulo: "Tempestade de Areia Khamsin",
+                acao: () => {
+                    jogo.recursos.agua = Math.max(0, jogo.recursos.agua - 60);
+                    emitirNotificacao("O vento Khamsin trouxe poeira escaldante do deserto. A água evaporou rapidamente.", true);
+                }
+            }
+        ];
+
+        // Escolha aleatória
+        let ev = dadosEventos[Math.floor(Math.random() * dadosEventos.length)];
+        ev.acao();
+        desenharMundo();
+    }
+
+    // --- CONDIÇÃO DE VITÓRIA TRATADA EM TEMPO REAL ---
+    function verificarCondicaoVitoria() {
+        if(jogo.progressoEscrita === 4 && jogo.progressoMedicina === 4) {
+            // Pausa o jogo exibindo a tela final
+            document.getElementById('tela-vitoria').style.display = 'flex';
+        }
+    }
+
+    function reprocurarOuReiniciar() {
+        location.reload();
+    }
+
+    // --- CONTROLE DE INICIALIZAÇÃO ---
+    function iniciarJogo() {
+        document.getElementById('tela-intro').style.display = 'none';
+        
+        redimensionarCanvas();
+        renderizarListaConstrucoes();
+        desenharMundo();
+        
+        // Disparar o relógio global
+        rodarLoopJogo();
+    }
+</script>
+
+</body>
+</html>
