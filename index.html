@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kemet 3D: O Império do Nilo</title>
+    <title>Kemet: Real-Time Dynasty 3D</title>
     <style>
         :root {
             --cor-papiro: #f4ecd8;
@@ -57,7 +57,7 @@
             border: 8px double var(--cor-ocre);
             border-radius: 4px;
             padding: 30px;
-            max-width: 650px;
+            max-width: 600px;
             text-align: center;
             box-shadow: 0 0 20px rgba(0,0,0,0.5);
             max-height: 90vh;
@@ -74,7 +74,7 @@
         }
 
         p {
-            font-size: 16px;
+            font-size: 15px;
             line-height: 1.6;
             margin-bottom: 20px;
             text-align: justify;
@@ -85,7 +85,7 @@
             color: white;
             border: 2px solid var(--cor-areia);
             padding: 12px 30px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
             cursor: pointer;
             text-transform: uppercase;
@@ -101,10 +101,10 @@
             background-color: var(--cor-papiro);
             border-bottom: 4px solid var(--cor-areia);
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
             padding: 8px 15px;
             gap: 10px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: bold;
             z-index: 10;
             box-shadow: 0 4px 10px rgba(0,0,0,0.3);
@@ -121,7 +121,7 @@
         }
 
         .recurso-item span:first-child {
-            font-size: 11px;
+            font-size: 10px;
             color: #665544;
             text-transform: uppercase;
         }
@@ -138,21 +138,21 @@
             background-color: #000;
         }
 
-        #instrucoes-camera {
+        #instrucoes-hud {
             position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(0,0,0,0.6);
+            bottom: 15px;
+            left: 20px;
+            background: rgba(0,0,0,0.7);
             color: #fff;
-            padding: 5px 15px;
-            border-radius: 20px;
+            padding: 8px 15px;
+            border-radius: 5px;
             font-size: 12px;
             pointer-events: none;
+            border-left: 3px solid var(--cor-areia);
         }
 
         #painel-controle {
-            width: 380px;
+            width: 360px;
             background-color: var(--cor-papiro);
             border-left: 4px solid var(--cor-areia);
             display: flex;
@@ -172,9 +172,8 @@
             background: none;
             font-weight: bold;
             cursor: pointer;
-            font-size: 12px;
+            font-size: 11px;
             text-transform: uppercase;
-            border-bottom: 2px solid transparent;
         }
 
         .aba-btn.ativa {
@@ -210,7 +209,7 @@
         }
 
         .card-acao p {
-            font-size: 13px;
+            font-size: 12px;
             margin-bottom: 8px;
             text-align: left;
         }
@@ -227,11 +226,11 @@
             background: var(--cor-azul-nilo);
             color: white;
             border: none;
-            padding: 6px;
+            padding: 7px;
             cursor: pointer;
             font-weight: bold;
             text-transform: uppercase;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .btn-acao:disabled {
@@ -241,57 +240,26 @@
 
         #notificacoes-box {
             position: absolute;
-            bottom: 50px;
+            top: 80px;
             left: 20px;
-            width: 320px;
-            max-height: 200px;
-            overflow: hidden;
+            width: 300px;
             display: flex;
-            flex-direction: column-reverse;
+            flex-direction: column;
             gap: 5px;
             pointer-events: none;
             z-index: 100;
         }
 
         .alerta {
-            background: rgba(43, 34, 20, 0.9);
+            background: rgba(43, 34, 20, 0.95);
             color: #fff;
             padding: 8px 12px;
             font-size: 12px;
             border-left: 4px solid var(--cor-areia);
-            animation: surgir 0.3s ease-out;
-        }
-
-        .alerta.urgente {
-            border-left-color: red;
-        }
-
-        @keyframes surgir {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-
-        .progresso-container {
-            margin-bottom: 10px;
-        }
-        .barra-progresso {
-            width: 100%;
-            background: #ddd;
-            height: 12px;
-            border-radius: 6px;
-            overflow: hidden;
-            margin-top: 4px;
-            border: 1px solid #aaa;
-        }
-        .progresso-preenchido {
-            height: 100%;
-            background: var(--cor-verde-oasis);
-            width: 0%;
-            transition: width 0.4s;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
         }
     </style>
 
-    <!-- IMPORTANDO AS BIBLIOTECAS 3D DA INTERNET -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
 </head>
@@ -299,94 +267,80 @@
 
 <div id="interface-jogo">
 
-    <!-- TELA INICIAL -->
-    <div id="tela-intro" class="tela-modal">
-        <div class="papiro-container">
-            <h1>Kemet 3D: Império do Nilo</h1>
-            <p>Saudações, Nobre Faraó! Você recebeu o comando de um modesto assentamento tridimensional às margens férteis do Rio Nilo.</p>
-            <p><strong>Condição de Vitória:</strong> Alcance o ápice cultural desenvolvendo os <strong>Hieróglifos (Escrita)</strong> e fundando os pilares da <strong>Medicina Egípcia</strong> através dos painéis laterais.</p>
-            <button class="btn-egipcio" onclick="iniciarJogo()">Iniciar Dinastia 3D</button>
+    <!-- TUTORIAL / INTRODUÇÃO INTERATIVA -->
+    <div id="modal-tutorial" class="tela-modal">
+        <div class="papiro-container" id="conteudo-tutorial">
+            <h1>Dynasty Kemet: Tutorial</h1>
+            <p>Bem-vindo à sua província, Faraó! Para prosperar no estilo <strong>Rise of Kingdoms</strong>, você precisa aprender as regras do Nilo:</p>
+            <p style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">
+                🖱️ <strong>Coleta Manual:</strong> Clique diretamente com o mouse nos recursos do mapa 3D (Árvores, Rochas de Calcário e Margens do Rio) para coletar matéria-prima inicial.
+            </p>
+            <p style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">
+                ⚙️ <strong>Automação:</strong> Use seus recursos iniciais na aba <strong>Construir</strong> para erguer Postos de Coleta. Eles geram matéria-prima automaticamente sem parar!
+            </p>
+            <button class="btn-egipcio" onclick="avancarTutorial()">Entendido, Começar!</button>
         </div>
     </div>
 
     <!-- TELA DE VITÓRIA -->
     <div id="tela-vitoria" class="tela-modal" style="display: none;">
         <div class="papiro-container">
-            <h1 style="color: var(--cor-verde-oasis);">Vitória Eterna!</h1>
-            <p><strong>O Legado de Kemet está Selado!</strong> Sob o seu comando supremo, sua maquete e civilização prosperaram. Os hieróglifos e os tratados médicos ecoarão através dos milênios!</p>
-            <button class="btn-egipcio" onclick="location.reload()">Jogar Novamente</button>
+            <h1 style="color: var(--cor-verde-oasis);">Eternidade Alcançada!</h1>
+            <p>Seus hieróglifos registraram as dinastias e sua Casa da Vida curou as pragas do deserto. O império do Nilo viverá para sempre sob a luz do sol!</p>
+            <button class="btn-egipcio" onclick="location.reload()">Reinar Novamente</button>
         </div>
     </div>
 
     <!-- BARRA SUPERIOR DE RECURSOS -->
     <div id="barra-recursos">
-        <div class="recurso-item"><span>Estação</span><span id="res-ciclo">Akhet (Cheia)</span></div>
-        <div class="recurso-item"><span>Alimento</span><span id="res-alimento">500</span></div>
-        <div class="recurso-item"><span>Água</span><span id="res-agua">300</span></div>
-        <div class="recurso-item"><span>Tijolos</span><span id="res-tijolo">150</span></div>
-        <div class="recurso-item"><span>Madeira</span><span id="res-madeira">80</span></div>
+        <div class="recurso-item"><span>Estação</span><span id="res-ciclo">Akhet</span></div>
+        <div class="recurso-item"><span>Alimento</span><span id="res-alimento">200</span></div>
+        <div class="recurso-item"><span>Água</span><span id="res-agua">150</span></div>
+        <div class="recurso-item"><span>Madeira</span><span id="res-madeira">50</span></div>
+        <div class="recurso-item"><span>Pedra</span><span id="res-pedra">30</span></div>
+        <div class="recurso-item"><span>Tijolos</span><span id="res-tijolo">20</span></div>
         <div class="recurso-item"><span>Papiro</span><span id="res-papiro">0</span></div>
-        <div class="recurso-item"><span>Pedra</span><span id="res-pedra">0</span></div>
-        <div class="recurso-item"><span>Ouro</span><span id="res-ouro">50</span></div>
-        <div class="recurso-item"><span>População</span><span id="res-populacao">12 / 15</span></div>
-        <div class="recurso-item"><span>Fé / Felicidade</span><span id="res-fe">100%</span></div>
+        <div class="recurso-item"><span>Ouro</span><span id="res-ouro">10</span></div>
+        <div class="recurso-item"><span>Cidadãos</span><span id="res-populacao">5 / 10</span></div>
     </div>
 
-    <!-- PALCO CENTRAL -->
+    <!-- ÁREA CENTRAL -->
     <div id="area-central">
         <div id="canvas-3d"></div>
-        <div id="instrucoes-camera">Mova o mouse clicando para girar a câmera | Scroll para Zoom</div>
+        <div id="instrucoes-hud">Clique esquerdo nos objetos para Coletar | Botão direito ou Ctrl+Clique para Girar Câmera</div>
 
         <!-- PAINEL LATERAL -->
         <div id="painel-controle">
             <div class="abas-navegacao">
                 <button class="aba-btn ativa" onclick="mudarAba('aba-construcao')">Construir</button>
-                <button class="aba-btn" onclick="mudarAba('aba-cultura')">Cultura</button>
-                <button class="aba-btn" onclick="mudarAba('aba-governo')">Governo</button>
+                <button class="aba-btn" onclick="mudarAba('aba-cultura')">Cultura & Vitória</button>
             </div>
 
             <div id="aba-construcao" class="conteudo-aba ativa">
-                <h3>Obras Públicas</h3>
+                <h3>Edificações e Automação</h3>
                 <div id="lista-construcoes"></div>
             </div>
 
             <div id="aba-cultura" class="conteudo-aba">
-                <h3>Grandes Avanços</h3>
+                <h3>Objetivos de Vitória</h3>
                 <div class="card-acao">
-                    <h4>1. Escrita (Hieróglifos)</h4>
+                    <h4>1. Desenvolvimento da Escrita</h4>
                     <div class="progresso-container">
-                        Fase: <strong id="txt-fase-escrita">Nenhuma</strong>
+                        Nível: <strong id="txt-fase-escrita">Nenhum</strong>
                         <div class="barra-progresso"><div id="prog-escrita" class="progresso-preenchido"></div></div>
                     </div>
                     <div class="custo-lista" id="custo-escrita">Requer: Casa dos Escribas</div>
-                    <button class="btn-acao" id="btn-evoluir-escrita" onclick="desenvolverEscrita()">Evoluir Escrita</button>
+                    <button class="btn-acao" id="btn-evoluir-escrita" onclick="desenvolverEscrita()">Pesquisar Hieróglifos</button>
                 </div>
 
                 <div class="card-acao">
-                    <h4>2. Medicina Egípcia</h4>
+                    <h4>2. Tratados de Medicina</h4>
                     <div class="progresso-container">
-                        Fase: <strong id="txt-fase-medicina">Nenhuma</strong>
+                        Nível: <strong id="txt-fase-medicina">Nenhum</strong>
                         <div class="barra-progresso"><div id="prog-medicina" class="progresso-preenchido"></div></div>
                     </div>
                     <div class="custo-lista" id="custo-medicina">Requer: Casa da Vida</div>
-                    <button class="btn-acao" id="btn-evoluir-medicina" onclick="desenvolverMedicina()">Evoluir Medicina</button>
-                </div>
-            </div>
-
-            <div id="aba-governo" class="conteudo-aba">
-                <h3>Decretos</h3>
-                <div class="card-acao">
-                    <h4>Foco do Reino</h4>
-                    <select id="sel-decreto" onchange="atualizarDecreto()" style="width:100%; padding:5px;">
-                        <option value="equilibrado">Decreto Equilibrado</option>
-                        <option value="racoes">Rações Fartas (+Felicidade)</option>
-                        <option value="mutirao">Mutirão Civil (+Produção)</option>
-                    </select>
-                </div>
-                <h3>Exército</h3>
-                <div class="card-acao">
-                    <h4>Milícia: <span id="txt-milicia">0</span> Guardas</h4>
-                    <button class="btn-acao" onclick="treinarSoldado()">Recrutar Soldado (30 Alim.)</button>
+                    <button class="btn-acao" id="btn-evoluir-medicina" onclick="desenvolverMedicina()">Pesquisar Medicina</button>
                 </div>
             </div>
         </div>
@@ -396,86 +350,86 @@
 </div>
 
 <script>
-    // --- ESTADO LOGICO DO JOGO ---
+    // --- ESTADO INTERNO DO JOGO ---
     const jogo = {
-        recursos: { alimento: 500, agua: 300, tijolo: 150, madeira: 80, papiro: 0, pedra: 0, ouro: 50, populacao: 12, maxPopulacao: 15, fe: 100, soldados: 0 },
-        estacoes: ['Akhet (Cheia)', 'Peret (Semeadura)', 'Shemu (Colheita)'],
-        estacaoAtualIdx: 0, tempoNoCiclo: 0, duracaoEstacao: 250, decreto: 'equilibrado',
-        progressoEscrita: 0, fasesEscrita: ['Sem Escrita', 'Casa dos Escribas', 'Pictogramas', 'Hieróglifos', 'Grande Biblioteca'],
-        progressoMedicina: 0, fasesMedicina: ['Sem Medicina', 'Casa da Vida', 'Anatomia', 'Uso de Ervas', 'Tratado de Ebers Concluído'],
-        construcoes: { casas: 2, shaduf: 1, campos: 1, casaEscribas: 0, casaVida: 0 }
+        recursos: { alimento: 200, agua: 150, madeira: 50, pedra: 30, tijolo: 20, papiro: 0, ouro: 10, populacao: 5, maxPopulacao: 10 },
+        estacoes: ['Akhet (Inundação)', 'Peret (Semeadura)', 'Shemu (Colheita)'],
+        estacaoAtualIdx: 0, tempoNoCiclo: 0, duracaoEstacao: 300,
+        progressoEscrita: 0, fasesEscrita: ['Sem Escrita', 'Escribas Iniciados', 'Pictogramas do Nilo', 'Hieróglifos Completos', 'Biblioteca Real'],
+        progressoMedicina: 0, fasesMedicina: ['Sem Medicina', 'Ervanários da Vida', 'Técnicas de Anatomia', 'Cirurgias Básicas', 'Tratado Edwin Smith'],
+        automação: { lenhadores: 0, pedreiras: 0, fazendas: 0 },
+        construcoes: { casaEscribas: 0, casaVida: 0, cabanas: 1 }
     };
 
     const dadosConstrucao = {
-        casas: { nome: "Cabana de Barro", desc: "+5 de limite populacional.", custo: { tijolo: 40, madeira: 15 } },
-        shaduf: { nome: "Shaduf de Irrigação", desc: "Produção contínua de água.", custo: { madeira: 30, tijolo: 20 } },
-        campos: { nome: "Campos de Trigo", desc: "Aumenta muito alimento nas colheitas.", custo: { agua: 50, tijolo: 30 } },
-        casaEscribas: { nome: "Casa dos Escribas", desc: "Desbloqueia pesquisas de Escrita.", custo: { tijolo: 100, madeira: 50, ouro: 20 }, unica: true },
-        casaVida: { nome: "Casa da Vida", desc: "Desbloqueia pesquisas de Medicina.", custo: { tijolo: 120, pedra: 50, ouro: 40 }, unica: true }
+        cabanas: { nome: "Cabana Extra", desc: "+5 de limite populacional.", custo: { madeira: 30, tijolo: 20 } },
+        lenhador: { nome: "Cabana de Lenhador", desc: "Automatiza: Coleta +1 Madeira por segundo.", custo: { madeira: 20, pedra: 10 }, autoKey: "lenhadores" },
+        pedreira: { nome: "Posto de Mineração", desc: "Automatiza: Coleta +1 Pedra por segundo.", custo: { madeira: 40, tijolo: 15 }, autoKey: "pedreiras" },
+        fazenda: { nome: "Campos Irrigados", desc: "Automatiza: Coleta +2 Alimentos por segundo.", custo: { agua: 40, tijolo: 30 }, autoKey: "fazendas" },
+        casaEscribas: { nome: "Casa dos Escribas", desc: "Desbloqueia os avanços da Escrita.", custo: { madeira: 80, pedra: 60, ouro: 20 }, unica: true },
+        casaVida: { nome: "Casa da Vida", desc: "Desbloqueia os avanços da Medicina.", custo: { tijolo: 100, pedra: 80, ouro: 30 }, unica: true }
     };
 
-    // --- ENGINE GRAPHICA 3D (THREE.JS) ---
-    let cena, camera, renderizador, controles;
-    let malhaRio, grupoConstrucoes;
+    // --- ENGINE GRÁFICA 3D REAL (Visão de cima / Top-down RoK) ---
+    let cena, camera, renderizador, controles, raycaster, mouse;
+    let objetosInterativos = [];
 
-    function inicializarAmbiente3D() {
+    function inicializarMundo3D() {
         const container = document.getElementById('canvas-3d');
         
-        // 1. Criar a cena e neblina do deserto
         cena = new THREE.Scene();
-        cena.background = new THREE.Color(0xe2b13c); // Cor de areia
-        cena.fog = new THREE.FogExp2(0xe2b13c, 0.015);
+        cena.background = new THREE.Color(0xe5c17a); // Areia quente de fundo
+        cena.fog = new THREE.FogExp2(0xe5c17a, 0.012);
 
-        // 2. Câmera posicionada em ângulo isométrico
-        camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 1, 1000);
-        camera.position.set(60, 50, 60);
+        // Câmera estilo Estratégia em Tempo Real (Inclinada olhando de cima)
+        camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 1, 1000);
+        camera.position.set(0, 55, 55);
 
-        // 3. Renderizador moderno
         renderizador = new THREE.WebGLRenderer({ antialias: true });
         renderizador.setSize(container.clientWidth, container.clientHeight);
         renderizador.shadowMap.enabled = true;
         container.appendChild(renderizador.domElement);
 
-        // 4. Controles do Mouse para orbitar e dar zoom
         controles = new THREE.OrbitControls(camera, renderizador.domElement);
         controles.enableDamping = true;
         controles.dampingFactor = 0.05;
-        controles.maxPolarAngle = Math.PI / 2.1; // Não deixa a câmera passar debaixo do chão
-        controles.minDistance = 20;
-        controles.maxDistance = 150;
+        controles.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }; // Botão esquerdo livre para cliques!
+        controles.target.set(0, 0, 0);
 
-        // 5. Iluminação (Sol do Egito e luz ambiente)
-        const luzAmbiente = new THREE.AmbientLight(0xfff3db, 0.6);
+        // Iluminação avançada
+        const luzAmbiente = new THREE.AmbientLight(0xfff5e6, 0.7);
         cena.add(luzAmbiente);
 
-        const sol = new THREE.DirectionalLight(0xffffff, 0.8);
-        sol.position.set(40, 80, 20);
+        const sol = new THREE.DirectionalLight(0xffffff, 0.9);
+        sol.position.set(30, 60, 20);
         sol.castShadow = true;
         cena.add(sol);
 
-        // 6. Chão de Deserto / Margem
-        const geoChao = new THREE.PlaneGeometry(200, 200);
-        const matChao = new THREE.MeshStandardMaterial({ color: 0xdfae35, roughness: 0.9 });
+        // Chão (Deserto)
+        const geoChao = new THREE.PlaneGeometry(300, 300);
+        const matChao = new THREE.MeshStandardMaterial({ color: 0xe2b13c, roughness: 0.9 });
         const chao = new THREE.Mesh(geoChao, matChao);
         chao.rotation.x = -Math.PI / 2;
-        chao.receiveShadow = true;
         cena.add(chao);
 
-        // 7. O Rio Nilo (Faixa central Azul)
-        const geoRio = new THREE.PlaneGeometry(35, 200);
-        const matRio = new THREE.MeshStandardMaterial({ color: 0x1a759f, roughness: 0.2, metalness: 0.1 });
-        malhaRio = new THREE.Mesh(geoRio, matRio);
-        malhaRio.rotation.x = -Math.PI / 2;
-        malhaRio.position.y = 0.05; // Levemente acima do deserto para não bugar a imagem
-        cena.add(malhaRio);
+        // O Rio Nilo (Centro do mapa)
+        const geoRio = new THREE.PlaneGeometry(40, 300);
+        const matRio = new THREE.MeshStandardMaterial({ color: 0x145a7a, roughness: 0.1 });
+        const rio = new THREE.Mesh(geoRio, matRio);
+        rio.rotation.x = -Math.PI / 2;
+        rio.position.set(45, 0.1, 0);
+        cena.add(rio);
 
-        // Grupo para guardar os prédios e atualizá-los dinamicamente
-        grupoConstrucoes = new THREE.Group();
-        cena.add(grupoConstrucoes);
+        // Raycaster para capturar cliques nos modelos 3D
+        raycaster = new THREE.Raycaster();
+        mouse = new THREE.Vector2();
 
-        remontarVila3D();
+        window.addEventListener('click', onMapaClick);
 
-        // Loop de animação contínuo
+        // Gerar recursos clicáveis e modelos no mapa
+        gerarRecursosNoMapa();
+        atualizarModelosVila3D();
+
         function animar() {
             requestAnimationFrame(animar);
             controles.update();
@@ -484,193 +438,270 @@
         animar();
     }
 
-    // --- FUNÇÃO PARA CRIAR PRÉDIOS EM 3D NO MAPA ---
-    function remontarVila3D() {
-        // Limpa tudo o que já foi desenhado antes
-        while(grupoConstrucoes.children.length > 0){ 
-            grupoConstrucoes.remove(grupoConstrucoes.children[0]); 
+    // --- GERADOR DE MODELOS 3D MELHORADOS ---
+    function gerarRecursosNoMapa() {
+        // Criar Árvores (Tronco cilíndrico + Folhas cônicas empilhadas)
+        for(let i=0; i<10; i++) {
+            let grupoArvore = new THREE.Group();
+            
+            let geoTronco = new THREE.CylinderGeometry(0.4, 0.6, 4);
+            let matTronco = new THREE.MeshStandardMaterial({ color: 0x5a3d28 });
+            let tronco = new THREE.Mesh(geoTronco, matTronco);
+            tronco.position.y = 2;
+            grupoArvore.add(tronco);
+
+            let geoFolhas = new THREE.ConeGeometry(2.5, 4, 5);
+            let matFolhas = new THREE.MeshStandardMaterial({ color: 0x1b4d3e, roughness: 0.6 });
+            let folhas = new THREE.Mesh(geoFolhas, matFolhas);
+            folhas.position.y = 4.5;
+            grupoArvore.add(folhas);
+
+            grupoArvore.position.set(-25 + Math.random()*15, 0, -40 + (i*10));
+            grupoArvore.userData = { tipo: 'madeira', quantidade: 25 };
+            cena.add(grupoArvore);
+            objetosInterativos.push(grupoArvore);
         }
 
-        // Criar Cabanas de Barro (Cubos marrons com teto plano)
-        for(let i = 0; i < jogo.construcoes.casas; i++) {
-            const geoCasa = new THREE.BoxGeometry(4, 3, 4);
-            const matCasa = new THREE.MeshStandardMaterial({ color: 0xb5835a, roughness: 0.8 });
-            const mesh = new THREE.Mesh(geoCasa, matCasa);
-            mesh.position.set(-25 - (i * 5), 1.5, -10 + (i * 6));
-            grupoConstrucoes.add(mesh);
+        // Criar Pedras Calcárias (Geometrias facetadas/Dodecaedro)
+        for(let i=0; i<8; i++) {
+            let geoPedra = new THREE.DodecahedronGeometry(2);
+            let matPedra = new THREE.MeshStandardMaterial({ color: 0xb0a48a, roughness: 0.9 });
+            let pedra = new THREE.Mesh(geoPedra, matPedra);
+            
+            pedra.position.set(-45 + Math.random()*15, 1, -30 + (i*12));
+            pedra.scale.set(1, 1 + Math.random(), 1);
+            pedra.userData = { tipo: 'pedra', quantidade: 30 };
+            cena.add(pedra);
+            objetosInterativos.push(pedra);
+        }
+    }
+
+    function atualizarModelosVila3D() {
+        // Remove prédios antigos para redesenhar
+        let paraRemover = cena.children.filter(c => c.name === "predioVila");
+        paraRemover.forEach(c => cena.remove(c));
+
+        // Desenhar Centro da Vila / Cabanas (Design egípcio com paredes chanfradas)
+        for(let i=0; i<jogo.automação.fazendas + 1; i++) {
+            let geoCasa = new THREE.CylinderGeometry(2, 3, 3, 4); // Forma trapezoidal egípcia
+            let matCasa = new THREE.MeshStandardMaterial({ color: 0xd4a373 });
+            let cabana = new THREE.Mesh(geoCasa, matCasa);
+            cabana.name = "predioVila";
+            cabana.rotation.y = Math.PI/4;
+            cabana.position.set(-10, 1.5, -20 + (i*8));
+            cena.add(cabana);
         }
 
-        // Criar Campos de Trigo (Pratos verdes/amarelos na margem do rio)
-        let corTrigo = jogo.estacaoAtualIdx === 2 ? 0xd4a373 : 0x38b000; 
-        for(let i = 0; i < jogo.construcoes.campos; i++) {
-            const geoCampo = new THREE.BoxGeometry(8, 0.2, 12);
-            const matCampo = new THREE.MeshStandardMaterial({ color: corTrigo });
-            const mesh = new THREE.Mesh(geoCampo, matCampo);
-            mesh.position.set(-20, 0.1, 15 + (i * 15));
-            grupoConstrucoes.add(mesh);
-        }
-
-        // Casa dos Escribas (Edifício Azul imponente)
+        // Casa dos Escribas (Design de Templo com uma Pequena Pirâmide no topo)
         if(jogo.construcoes.casaEscribas > 0) {
-            const geoEscriba = new THREE.BoxGeometry(7, 6, 7);
-            const matEscriba = new THREE.MeshStandardMaterial({ color: 0x457b9d });
-            const mesh = new THREE.Mesh(geoEscriba, matEscriba);
-            mesh.position.set(-30, 3, -30);
-            grupoConstrucoes.add(mesh);
+            let templo = new THREE.Group();
+            templo.name = "predioVila";
+            
+            let base = new THREE.Mesh(new THREE.BoxGeometry(8, 4, 8), new THREE.MeshStandardMaterial({ color: 0x457b9d }));
+            base.position.y = 2;
+            templo.add(base);
+
+            let teto = new THREE.Mesh(new THREE.ConeGeometry(5, 4, 4), new THREE.MeshStandardMaterial({ color: 0xe2b13c }));
+            teto.position.y = 55 / 10; 
+            teto.rotation.y = Math.PI/4;
+            templo.add(teto);
+
+            templo.position.set(10, 0, -15);
+            cena.add(templo);
         }
 
-        // Casa da Vida (Templo avermelhado)
+        // Casa da Vida (Grande Pirâmide Vermelha Medicinal)
         if(jogo.construcoes.casaVida > 0) {
-            const geoVida = new THREE.BoxGeometry(9, 7, 9);
-            const matVida = new THREE.MeshStandardMaterial({ color: 0xe63946 });
-            const mesh = new THREE.Mesh(geoVida, matVida);
-            mesh.position.set(-35, 3.5, 0);
-            grupoConstrucoes.add(mesh);
+            let piramide = new THREE.Mesh(
+                new THREE.ConeGeometry(7, 8, 4),
+                new THREE.MeshStandardMaterial({ color: 0xe63946, roughness: 0.5 })
+            );
+            piramide.name = "predioVila";
+            piramide.rotation.y = Math.PI/4;
+            piramide.position.set(15, 4, 15);
+            cena.add(piramide);
         }
     }
 
-    // --- RESTANTE DA LÓGICA DE GERENCIAMENTO (ADAPTADA) ---
-    function iniciarJogo() {
-        document.getElementById('tela-intro').style.display = 'none';
-        inicializarAmbiente3D();
-        renderizarListaConstrucoes();
-        rodarLoopJogo();
-    }
+    // --- DETECÇÃO DE CLIQUES DO MOUSE NO MAPA ---
+    function onMapaClick(event) {
+        // Bloqueia clique se clicar na barra ou painel lateral
+        if(event.clientX > window.innerWidth - 360 || event.clientY < 60) return;
 
-    function emitirNotificacao(texto, urgente = false) {
-        const box = document.getElementById('notificacoes-box');
-        const alerta = document.createElement('div');
-        alerta.className = `alerta ${urgente ? 'urgente' : ''}`;
-        alerta.innerText = texto;
-        box.appendChild(alerta);
-        setTimeout(() => alerta.remove(), 5000);
-    }
+        mouse.x = (event.clientX / (window.innerWidth - 360)) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-    function renderizarListaConstrucoes() {
-        const div = document.getElementById('lista-construcoes');
-        div.innerHTML = '';
-        for (let chave in dadosConstrucao) {
-            let b = dadosConstrucao[chave];
-            let qtdAtual = jogo.construcoes[chave];
-            if(b.unica && qtdAtual >= 1) continue;
+        raycaster.setFromCamera(mouse, camera);
+        
+        // Verifica se acertou algum objeto interativo (Árvores ou Rochas)
+        let intersects = raycaster.intersectObjects(objetosInterativos, true);
 
-            let stringCusto = "";
-            for(let r in b.custo) stringCusto += `${b.custo[r]} ${r.toUpperCase()} | `;
+        if(intersects.length > 0) {
+            let atingido = intersects[0].object;
+            // Caso tenha clicado em partes de um grupo (como as folhas da árvore) pega o pai
+            if(atingido.parent && atingido.parent.userData.tipo) atingido = atingido.parent;
 
-            let divCard = document.createElement('div');
-            divCard.className = 'card-acao';
-            divCard.innerHTML = `
-                <h4>${b.nome} <span>(${qtdAtual})</span></h4>
-                <p>${b.desc}</p>
-                <div class="custo-lista">Custo: ${stringCusto.slice(0, -3)}</div>
-                <button class="btn-acao" onclick="construirEdificio('${chave}')">Erguer em 3D</button>
-            `;
-            div.appendChild(divCard);
+            let tipo = atingido.userData.tipo;
+            if(tipo === 'madeira') {
+                jogo.recursos.madeira += 5;
+                emitirNotificacao("+5 Madeira coletada das Palmeiras!");
+            } else if(tipo === 'pedra') {
+                jogo.recursos.pedra += 5;
+                emitirNotificacao("+5 Calcário extraído das Rochas!");
+            }
+
+            // Animação simples de escala ao clicar
+            atingido.scale.set(1.2, 1.2, 1.2);
+            setTimeout(() => atingido.scale.set(1, 1, 1), 100);
+            atualizarInterface();
         }
     }
 
+    // --- SISTEMA DE AUTOMATIZAÇÃO (ESTILO ROO) ---
+    function rodarLoopEconomia() {
+        // Executado a cada 1 segundo para recursos automatizados
+        setInterval(() => {
+            if(document.getElementById('modal-tutorial').style.display === 'flex') return;
+
+            // Ganhos automáticos baseados nas estruturas construídas
+            if(jogo.automação.lenhadores > 0) {
+                jogo.recursos.madeira += jogo.automação.lenhadores * 1;
+            }
+            if(jogo.automação.pedreiras > 0) {
+                jogo.recursos.pedra += jogo.automação.pedreiras * 1;
+            }
+            if(jogo.automação.fazendas > 0) {
+                jogo.recursos.alimento += jogo.automação.fazendas * 2;
+                jogo.recursos.agua += jogo.automação.fazendas * 0.5;
+            }
+
+            // Consumo populacional básico
+            jogo.recursos.alimento = Math.max(0, jogo.recursos.alimento - (jogo.recursos.populacao * 0.1));
+            jogo.recursos.agua = Math.max(0, jogo.recursos.agua - (jogo.recursos.populacao * 0.1));
+
+            // Produção natural passiva de tijolo pela proximidade ao Nilo
+            jogo.recursos.tijolo += 0.2;
+
+            atualizarInterface();
+        }, 1000);
+    }
+
+    // --- MÁQUINA DE INTERFACE E CONSTRUÇÃO ---
     function construirEdificio(chave) {
         let b = dadosConstrucao[chave];
         for(let r in b.custo) {
-            if((jogo.recursos[r] || 0) < b.custo[r]) {
-                emitirNotificacao("Faltam recursos para esta obra!", true);
+            if(jogo.recursos[r] < b.custo[r]) {
+                emitirNotificacao("Materiais insuficientes para construir!", true);
                 return;
             }
         }
+
+        // Deduz custos
         for(let r in b.custo) jogo.recursos[r] -= b.custo[r];
 
-        jogo.construcoes[chave]++;
-        if(chave === 'casas') jogo.recursos.maxPopulacao += 5;
-        if(chave === 'casaEscribas') jogo.progressoEscrita = 1;
-        if(chave === 'casaVida') jogo.progressoMedicina = 1;
-
-        emitirNotificacao(`${b.nome} materializado no mapa!`);
-        atualizarInterface();
-        renderizarListaConstrucoes();
-        remontarVila3D();
-    }
-
-    function rodarLoopJogo() {
-        jogo.tempoNoCiclo++;
-        if(jogo.tempoNoCiclo >= jogo.duracaoEstacao) {
-            jogo.tempoNoCiclo = 0;
-            jogo.estacaoAtualIdx = (jogo.estacaoAtualIdx + 1) % 3;
-            emitirNotificacao(`Nova Estação: ${jogo.estacoes[jogo.estacaoAtualIdx]}`);
-            
-            // Alterar dinamicamente o tamanho do Rio Nilo em 3D
-            if(jogo.estacaoAtualIdx === 0) malhaRio.scale.set(1.5, 1, 1); // Cheia expande o rio nas laterais
-            else if(jogo.estacaoAtualIdx === 2) malhaRio.scale.set(0.8, 1, 1); // Seca encolhe o rio
-            else malhaRio.scale.set(1, 1, 1);
-
-            remontarVila3D();
+        if(b.autoKey) {
+            jogo.automação[b.autoKey]++;
+            emitirNotificacao(`${b.nome} construída! Produção automatizada ligada.`);
+        } else {
+            jogo.construcoes[chave]++;
+            if(chave === 'cabanas') jogo.recursos.maxPopulacao += 5;
+            if(chave === 'casaEscribas') jogo.progressoEscrita = 1;
+            if(chave === 'casaVida') jogo.progressoMedicina = 1;
+            emitirNotificacao(`${b.nome} erguida no império.`);
         }
 
-        // Economia passiva simplificada
-        jogo.recursos.alimento += (jogo.construcoes.campos * 0.3) + 0.1;
-        jogo.recursos.alimento -= (jogo.recursos.populacao * 0.01);
-        jogo.recursos.agua += (jogo.construcoes.shaduf * 0.4) + 0.2;
-        jogo.recursos.agua -= (jogo.recursos.populacao * 0.01);
-        jogo.recursos.tijolo += 0.05;
-        if(jogo.construcoes.casaEscribas > 0) jogo.recursos.papiro += 0.04;
-        if(jogo.construcoes.casaVida > 0) jogo.recursos.pedra += 0.03;
-
         atualizarInterface();
-        requestAnimationFrame(rodarLoopJogo);
+        renderizarListaConstrucoes();
+        atualizarModelosVila3D();
+    }
+
+    function desenvolverEscrita() {
+        if(jogo.progressoEscrita > 0 && jogo.progressoEscrita < 4) {
+            if(jogo.recursos.madeira >= 40 && jogo.recursos.ouro >= 10) {
+                jogo.recursos.madeira -= 40; jogo.recursos.ouro -= 10;
+                jogo.progressoEscrita++;
+                emitirNotificacao(`Nova tecnologia: ${jogo.fasesEscrita[jogo.progressoEscrita]}`);
+                verificarVitoria();
+                atualizarInterface();
+            } else { emitirNotificacao("Falta ouro ou madeira para pesquisas.", true); }
+        }
+    }
+
+    function desenvolverMedicina() {
+        if(jogo.progressoMedicina > 0 && jogo.progressoMedicina < 4) {
+            if(jogo.recursos.alimento >= 50 && jogo.recursos.pedra >= 30) {
+                jogo.recursos.alimento -= 50; jogo.recursos.pedra -= 30;
+                jogo.progressoMedicina++;
+                emitirNotificacao(`Nova descoberta: ${jogo.fasesMedicina[jogo.progressoMedicina]}`);
+                verificarVitoria();
+                atualizarInterface();
+            } else { emitirNotificacao("Faltam insumos na Casa da Vida.", true); }
+        }
+    }
+
+    function verificarVitoria() {
+        if(jogo.progressoEscrita === 4 && jogo.progressoMedicina === 4) {
+            document.getElementById('tela-vitoria').style.display = 'flex';
+        }
     }
 
     function atualizarInterface() {
-        document.getElementById('res-ciclo').innerText = jogo.estacoes[jogo.estacaoAtualIdx];
         document.getElementById('res-alimento').innerText = Math.floor(jogo.recursos.alimento);
         document.getElementById('res-agua').innerText = Math.floor(jogo.recursos.agua);
-        document.getElementById('res-tijolo').innerText = Math.floor(jogo.recursos.tijolo);
         document.getElementById('res-madeira').innerText = Math.floor(jogo.recursos.madeira);
-        document.getElementById('res-papiro').innerText = Math.floor(jogo.recursos.papiro);
         document.getElementById('res-pedra').innerText = Math.floor(jogo.recursos.pedra);
+        document.getElementById('res-tijolo').innerText = Math.floor(jogo.recursos.tijolo);
+        document.getElementById('res-papiro').innerText = Math.floor(jogo.recursos.papiro);
         document.getElementById('res-ouro').innerText = Math.floor(jogo.recursos.ouro);
         document.getElementById('res-populacao').innerText = `${jogo.recursos.populacao} / ${jogo.recursos.maxPopulacao}`;
-        
-        // Atualizar painéis de cultura
+
         document.getElementById('txt-fase-escrita').innerText = jogo.fasesEscrita[jogo.progressoEscrita];
         document.getElementById('prog-escrita').style.width = `${(jogo.progressoEscrita / 4) * 100}%`;
         document.getElementById('txt-fase-medicina').innerText = jogo.fasesMedicina[jogo.progressoMedicina];
         document.getElementById('prog-medicina').style.width = `${(jogo.progressoMedicina / 4) * 100}%`;
     }
 
-    function desenvolverEscrita() {
-        if(jogo.progressoEscrita > 0 && jogo.progressoEscrita < 4) {
-            jogo.progressoEscrita++;
-            emitirNotificacao(`Pesquisa Avançada: ${jogo.fasesEscrita[jogo.progressoEscrita]}`);
-            checarVitoria();
+    function renderizarListaConstrucoes() {
+        const div = document.getElementById('lista-construcoes');
+        div.innerHTML = '';
+        for (let cabe in dadosConstrucao) {
+            let b = dadosConstrucao[cabe];
+            if(b.unica && (jogo.construcoes[cabe] > 0)) continue;
+
+            let stringCusto = "";
+            for(let r in b.custo) stringCusto += `${b.custo[r]} ${r.toUpperCase()} | `;
+
+            div.innerHTML += `
+                <div class="card-acao">
+                    <h4>${b.nome}</h4>
+                    <p>${b.desc}</p>
+                    <div class="custo-lista">Custo: ${stringCusto.slice(0, -3)}</div>
+                    <button class="btn-acao" onclick="construirEdificio('${cabe}')">Erguer Estrutura</button>
+                </div>
+            `;
         }
     }
 
-    function desenvolverMedicina() {
-        if(jogo.progressoMedicina > 0 && jogo.progressoMedicina < 4) {
-            jogo.progressoMedicina++;
-            emitirNotificacao(`Pesquisa Avançada: ${jogo.fasesMedicina[jogo.progressoMedicina]}`);
-            checarVitoria();
-        }
+    function emitirNotificacao(txt, urgente=false) {
+        const box = document.getElementById('notificacoes-box');
+        let a = document.createElement('div');
+        a.className = `alerta ${urgente ? 'urgente' : ''}`;
+        a.innerText = txt;
+        box.appendChild(a);
+        setTimeout(() => a.remove(), 4000);
     }
 
-    function checarVitoria() {
-        if(jogo.progressoEscrita === 4 && map.progressoMedicina === 4 || (jogo.progressoEscrita === 4 && jogo.progressoMedicina === 4)) {
-            document.getElementById('tela-vitoria').style.display = 'flex';
-        }
+    function avançarTutorial() {
+        document.getElementById('modal-tutorial').style.display = 'none';
+        inicializarMundo3D();
+        renderizarListaConstrucoes();
+        rodarLoopEconomia();
     }
 
     function mudarAba(id) {
         document.querySelectorAll('.conteudo-aba').forEach(e => e.classList.remove('ativa'));
         document.getElementById(id).classList.add('ativa');
     }
-    function atualizarDecreto() { emitirNotificacao("Decreto Real atualizado."); }
-    function treinarSoldado() { if(jogo.recursos.alimento >= 30) { jogo.recursos.alimento -= 30; jogo.recursos.soldados++; document.getElementById('txt-milicia').innerText = jogo.recursos.soldados; } }
-
-    window.addEventListener('resize', () => {
-        const c = document.getElementById('canvas-3d');
-        camera.aspect = c.clientWidth / c.clientHeight;
-        camera.updateProjectionMatrix();
-        renderizador.setSize(c.clientWidth, c.clientHeight);
-    });
 </script>
 </body>
 </html>
