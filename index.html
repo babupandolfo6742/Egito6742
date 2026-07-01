@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kemet: Real-Time Dynasty 3D</title>
+    <title>Kemet: Total War & Rise of Dynasties 3D</title>
     <style>
         :root {
             --cor-papiro: #f4ecd8;
@@ -15,249 +15,72 @@
             --cor-texto: #2b2214;
         }
 
-        * {
-            box-sizing: border-box;
-            user-select: none;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        body, html {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;
-            background-color: #111;
-            color: var(--cor-texto);
-        }
-
-        #interface-jogo {
-            position: relative;
-            width: 100%;
-            height: 100%;
-            display: flex;
-            flex-direction: column;
-        }
+        * { box-sizing: border-box; user-select: none; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body, html { width: 100%; height: 100%; overflow: hidden; background-color: #050508; color: var(--cor-texto); }
+        #interface-jogo { position: relative; width: 100%; height: 100%; display: flex; flex-direction: column; }
 
         .tela-modal {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.85);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 5, 10, 0.9); display: flex; justify-content: center; align-items: center; z-index: 1000;
         }
 
         .papiro-container {
-            background-color: var(--cor-papiro);
-            border: 8px double var(--cor-ocre);
-            border-radius: 4px;
-            padding: 30px;
-            max-width: 600px;
-            text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            max-height: 90vh;
-            overflow-y: auto;
+            background-color: var(--cor-papiro); border: 8px double var(--cor-ocre); border-radius: 4px;
+            padding: 25px; max-width: 650px; text-align: center; box-shadow: 0 0 30px rgba(0,0,0,0.8);
+            max-height: 90vh; overflow-y: auto;
         }
 
-        h1, h2, h3 {
-            color: var(--cor-ocre);
-            margin-bottom: 15px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            border-bottom: 2px solid var(--cor-papiro-escura);
-            padding-bottom: 5px;
-        }
-
-        p {
-            font-size: 15px;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            text-align: justify;
-        }
+        h1, h2, h3 { color: var(--cor-ocre); margin-bottom: 12px; text-transform: uppercase; letter-spacing: 2px; border-bottom: 2px solid var(--cor-papiro-escura); padding-bottom: 5px; }
+        p { font-size: 14px; line-height: 1.6; margin-bottom: 15px; text-align: justify; }
 
         .btn-egipcio {
-            background-color: var(--cor-ocre);
-            color: white;
-            border: 2px solid var(--cor-areia);
-            padding: 12px 30px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.2s;
+            background-color: var(--cor-ocre); color: white; border: 2px solid var(--cor-areia);
+            padding: 12px 30px; font-size: 16px; font-weight: bold; cursor: pointer; text-transform: uppercase;
         }
-
-        .btn-egipcio:hover {
-            background-color: var(--cor-areia);
-            color: var(--cor-texto);
-        }
+        .btn-egipcio:hover { background-color: var(--cor-areia); color: var(--cor-texto); }
 
         #barra-recursos {
-            background-color: var(--cor-papiro);
-            border-bottom: 4px solid var(--cor-areia);
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(105px, 1fr));
-            padding: 8px 15px;
-            gap: 10px;
-            font-size: 13px;
-            font-weight: bold;
-            z-index: 10;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            background-color: var(--cor-papiro); border-bottom: 4px solid var(--cor-areia);
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(95px, 1fr));
+            padding: 6px 12px; gap: 8px; font-size: 12px; font-weight: bold; z-index: 10;
         }
 
         .recurso-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            background: rgba(255,255,255,0.4);
-            padding: 4px;
-            border-radius: 3px;
-            border: 1px solid var(--cor-papiro-escura);
+            display: flex; flex-direction: column; align-items: center;
+            background: rgba(255,255,255,0.5); padding: 4px; border-radius: 3px; border: 1px solid var(--cor-papiro-escura);
+        }
+        .recurso-item span:first-child { font-size: 9px; color: #554433; text-transform: uppercase; }
+
+        #area-central { flex: 1; position: relative; display: flex; overflow: hidden; }
+        #canvas-3d { flex: 1; background-color: #05050a; }
+
+        #hud-info {
+            position: absolute; bottom: 15px; left: 15px; background: rgba(0,0,0,0.8);
+            color: #fff; padding: 10px 15px; border-radius: 6px; font-size: 12px;
+            pointer-events: none; border-left: 4px solid var(--cor-areia); display: flex; flex-direction: column; gap: 3px;
         }
 
-        .recurso-item span:first-child {
-            font-size: 10px;
-            color: #665544;
-            text-transform: uppercase;
-        }
+        #painel-controle { width: 350px; background-color: var(--cor-papiro); border-left: 4px solid var(--cor-areia); display: flex; flex-direction: column; z-index: 10; }
+        .abas-navegacao { display: flex; background: var(--cor-papiro-escura); }
+        .aba-btn { flex: 1; padding: 12px 5px; border: none; background: none; font-weight: bold; cursor: pointer; font-size: 11px; text-transform: uppercase; }
+        .aba-btn.ativa { background: var(--cor-papiro); border-bottom: 3px solid var(--cor-ocre); color: var(--cor-ocre); }
+        .conteudo-aba { display: none; padding: 15px; flex: 1; overflow-y: auto; }
+        .conteudo-aba.ativa { display: block; }
 
-        #area-central {
-            flex: 1;
-            position: relative;
-            display: flex;
-            overflow: hidden;
-        }
+        .card-acao { background: rgba(255,255,255,0.6); border: 1px solid var(--cor-papiro-escura); border-radius: 4px; padding: 10px; margin-bottom: 10px; }
+        .card-acao h4 { color: var(--cor-ocre); margin-bottom: 4px; display: flex; justify-content: space-between; font-size: 13px; }
+        .card-acao p { font-size: 11px; margin-bottom: 6px; }
+        .custo-lista { font-size: 10px; color: #554433; margin-bottom: 6px; font-style: italic; }
+        
+        .btn-acao { width: 100%; background: var(--cor-azul-nilo); color: white; border: none; padding: 6px; cursor: pointer; font-weight: bold; text-transform: uppercase; font-size: 11px; }
+        .btn-acao:disabled { background: #aaa; cursor: not-allowed; }
 
-        #canvas-3d {
-            flex: 1;
-            background-color: #000;
-        }
+        #notificacoes-box { position: absolute; top: 75px; left: 15px; width: 280px; display: flex; flex-direction: column; gap: 4px; pointer-events: none; z-index: 100; }
+        .alerta { background: rgba(30, 25, 15, 0.95); color: #fff; padding: 6px 10px; font-size: 11px; border-left: 4px solid var(--cor-areia); }
+        .alerta.urgente { border-left-color: #ff3333; }
 
-        #instrucoes-hud {
-            position: absolute;
-            bottom: 15px;
-            left: 20px;
-            background: rgba(0,0,0,0.7);
-            color: #fff;
-            padding: 8px 15px;
-            border-radius: 5px;
-            font-size: 12px;
-            pointer-events: none;
-            border-left: 3px solid var(--cor-areia);
-        }
-
-        #painel-controle {
-            width: 360px;
-            background-color: var(--cor-papiro);
-            border-left: 4px solid var(--cor-areia);
-            display: flex;
-            flex-direction: column;
-            z-index: 10;
-        }
-
-        .abas-navegacao {
-            display: flex;
-            background: var(--cor-papiro-escura);
-        }
-
-        .aba-btn {
-            flex: 1;
-            padding: 12px 5px;
-            border: none;
-            background: none;
-            font-weight: bold;
-            cursor: pointer;
-            font-size: 11px;
-            text-transform: uppercase;
-        }
-
-        .aba-btn.ativa {
-            background: var(--cor-papiro);
-            border-bottom: 3px solid var(--cor-ocre);
-            color: var(--cor-ocre);
-        }
-
-        .conteudo-aba {
-            display: none;
-            padding: 15px;
-            flex: 1;
-            overflow-y: auto;
-        }
-
-        .conteudo-aba.ativa {
-            display: block;
-        }
-
-        .card-acao {
-            background: rgba(255,255,255,0.6);
-            border: 1px solid var(--cor-papiro-escura);
-            border-radius: 4px;
-            padding: 12px;
-            margin-bottom: 12px;
-        }
-
-        .card-acao h4 {
-            color: var(--cor-ocre);
-            margin-bottom: 5px;
-            display: flex;
-            justify-content: space-between;
-        }
-
-        .card-acao p {
-            font-size: 12px;
-            margin-bottom: 8px;
-            text-align: left;
-        }
-
-        .custo-lista {
-            font-size: 11px;
-            color: #554433;
-            margin-bottom: 8px;
-            font-style: italic;
-        }
-
-        .btn-acao {
-            width: 100%;
-            background: var(--cor-azul-nilo);
-            color: white;
-            border: none;
-            padding: 7px;
-            cursor: pointer;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 11px;
-        }
-
-        .btn-acao:disabled {
-            background: #aaa;
-            cursor: not-allowed;
-        }
-
-        #notificacoes-box {
-            position: absolute;
-            top: 80px;
-            left: 20px;
-            width: 300px;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            pointer-events: none;
-            z-index: 100;
-        }
-
-        .alerta {
-            background: rgba(43, 34, 20, 0.95);
-            color: #fff;
-            padding: 8px 12px;
-            font-size: 12px;
-            border-left: 4px solid var(--cor-areia);
-            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-        }
+        .barra-progresso { width: 100%; background: #ccc; height: 10px; border-radius: 5px; overflow: hidden; margin-top: 3px; }
+        .progresso-preenchido { height: 100%; background: var(--cor-verde-oasis); width: 0%; transition: width 0.3s; }
     </style>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -267,80 +90,95 @@
 
 <div id="interface-jogo">
 
-    <!-- TUTORIAL / INTRODUÇÃO INTERATIVA -->
+    <!-- TELA TUTORIAL HIBRIDA -->
     <div id="modal-tutorial" class="tela-modal">
-        <div class="papiro-container" id="conteudo-tutorial">
-            <h1>Dynasty Kemet: Tutorial</h1>
-            <p>Bem-vindo à sua província, Faraó! Para prosperar no estilo <strong>Rise of Kingdoms</strong>, você precisa aprender as regras do Nilo:</p>
-            <p style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">
-                🖱️ <strong>Coleta Manual:</strong> Clique diretamente com o mouse nos recursos do mapa 3D (Árvores, Rochas de Calcário e Margens do Rio) para coletar matéria-prima inicial.
+        <div class="papiro-container">
+            <h1>Kemet: Rise of Kingdoms 3D</h1>
+            <p>Sua província ganhou vida inteligente, Faraó! O ambiente foi totalmente atualizado com texturas realistas e simulações complexas.</p>
+            <p style="background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-size: 13px;">
+                🌳 <strong>Mundo Vivo & Respawn:</strong> Clique nas Palmeiras ou Rochas para coletar. Recursos esgotados voltam a crescer com o tempo!
             </p>
-            <p style="background: rgba(0,0,0,0.05); padding: 10px; border-radius: 4px;">
-                ⚙️ <strong>Automação:</strong> Use seus recursos iniciais na aba <strong>Construir</strong> para erguer Postos de Coleta. Eles geram matéria-prima automaticamente sem parar!
+            <p style="background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-size: 13px;">
+                🚶 <strong>Aldeões Automatizados:</strong> Ao erguer postos de coleta, você verá camponeses de verdade caminhando fisicamente até as fontes de recurso para trabalhar.
             </p>
-            <button class="btn-egipcio" onclick="avancarTutorial()">Entendido, Começar!</button>
+            <p style="background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-size: 13px;">
+                ⚔️ <strong>Invasões e Combate:</strong> Acampamentos de Bárbaros surgirão no deserto. Recrute Soldados e clique em "Atacar Bárbaros" para enviar seu exército marchar em tempo real para o combate!
+            </p>
+            <p style="background: rgba(0,0,0,0.05); padding: 8px; border-radius: 4px; font-size: 13px;">
+                ☀️ <strong>Ciclo de Tempo:</strong> O sol se põe! À noite, a iluminação muda e tochas quentes se acendem automaticamente nas portas da sua vila.
+            </p>
+            <button class="btn-egipcio" onclick="fecharTutorial()">Assumir o Trono</button>
         </div>
     </div>
 
-    <!-- TELA DE VITÓRIA -->
     <div id="tela-vitoria" class="tela-modal" style="display: none;">
         <div class="papiro-container">
-            <h1 style="color: var(--cor-verde-oasis);">Eternidade Alcançada!</h1>
-            <p>Seus hieróglifos registraram as dinastias e sua Casa da Vida curou as pragas do deserto. O império do Nilo viverá para sempre sob a luz do sol!</p>
-            <button class="btn-egipcio" onclick="location.reload()">Reinar Novamente</button>
+            <h1 style="color: var(--cor-verde-oasis);">Dinastia Eterna</h1>
+            <p>Você unificou as tribos, repeliu os bárbaros e registrou os maiores avanços médicos da história da humanidade!</p>
+            <button class="btn-egipcio" onclick="location.reload()">Reiniciar</button>
         </div>
     </div>
 
-    <!-- BARRA SUPERIOR DE RECURSOS -->
+    <!-- HUD RECURSOS -->
     <div id="barra-recursos">
-        <div class="recurso-item"><span>Estação</span><span id="res-ciclo">Akhet</span></div>
-        <div class="recurso-item"><span>Alimento</span><span id="res-alimento">200</span></div>
-        <div class="recurso-item"><span>Água</span><span id="res-agua">150</span></div>
-        <div class="recurso-item"><span>Madeira</span><span id="res-madeira">50</span></div>
-        <div class="recurso-item"><span>Pedra</span><span id="res-pedra">30</span></div>
-        <div class="recurso-item"><span>Tijolos</span><span id="res-tijolo">20</span></div>
-        <div class="recurso-item"><span>Papiro</span><span id="res-papiro">0</span></div>
-        <div class="recurso-item"><span>Ouro</span><span id="res-ouro">10</span></div>
-        <div class="recurso-item"><span>Cidadãos</span><span id="res-populacao">5 / 10</span></div>
+        <div class="recurso-item"><span>Tempo</span><span id="res-hora">12:00 (Dia)</span></div>
+        <div class="recurso-item"><span>Alimento</span><span id="res-alimento">300</span></div>
+        <div class="recurso-item"><span>Água</span><span id="res-agua">200</span></div>
+        <div class="recurso-item"><span>Madeira</span><span id="res-madeira">100</span></div>
+        <div class="recurso-item"><span>Pedra</span><span id="res-pedra">50</span></div>
+        <div class="recurso-item"><span>Tijolo</span><span id="res-tijolo">30</span></div>
+        <div class="recurso-item"><span>Ouro</span><span id="res-ouro">20</span></div>
+        <div class="recurso-item"><span>Exército</span><span id="res-soldados">0 Soldados</span></div>
+        <div class="recurso-item"><span>População</span><span id="res-pop">5 / 10</span></div>
     </div>
 
-    <!-- ÁREA CENTRAL -->
+    <!-- MAIN INTERACTIVE VIEW -->
     <div id="area-central">
         <div id="canvas-3d"></div>
-        <div id="instrucoes-hud">Clique esquerdo nos objetos para Coletar | Botão direito ou Ctrl+Clique para Girar Câmera</div>
+        
+        <div id="hud-info">
+            <div>🖱️ Clique Esquerdo: Coletar Palmeiras / Pedras</div>
+            <div>🔄 Botão Direito do Mouse: Rotacionar Mapa do Egito</div>
+            <div>⚔️ Status Militar: <span id="txt-status-militar" style="color:#ffcc00; font-weight:bold;">Paz</span></div>
+        </div>
 
-        <!-- PAINEL LATERAL -->
+        <!-- SIDEBAR -->
         <div id="painel-controle">
             <div class="abas-navegacao">
-                <button class="aba-btn ativa" onclick="mudarAba('aba-construcao')">Construir</button>
-                <button class="aba-btn" onclick="mudarAba('aba-cultura')">Cultura & Vitória</button>
+                <button class="aba-btn ativa" onclick="mudarAba('aba-civil')">Cidades & Treino</button>
+                <button class="aba-btn" onclick="mudarAba('aba-militar')">Guerra & Ciência</button>
             </div>
 
-            <div id="aba-construcao" class="conteudo-aba ativa">
-                <h3>Edificações e Automação</h3>
-                <div id="lista-construcoes"></div>
+            <div id="aba-civil" class="conteudo-aba ativa">
+                <h3>Infraestrutura (RoK Style)</h3>
+                <div id="lista-obras"></div>
             </div>
 
-            <div id="aba-cultura" class="conteudo-aba">
-                <h3>Objetivos de Vitória</h3>
+            <div id="aba-militar" class="conteudo-aba">
+                <h3>Quartel General</h3>
                 <div class="card-acao">
-                    <h4>1. Desenvolvimento da Escrita</h4>
-                    <div class="progresso-container">
-                        Nível: <strong id="txt-fase-escrita">Nenhum</strong>
-                        <div class="barra-progresso"><div id="prog-escrita" class="progresso-preenchido"></div></div>
-                    </div>
-                    <div class="custo-lista" id="custo-escrita">Requer: Casa dos Escribas</div>
-                    <button class="btn-acao" id="btn-evoluir-escrita" onclick="desenvolverEscrita()">Pesquisar Hieróglifos</button>
+                    <h4>Treinar Guarda de Elite</h4>
+                    <p>Cria combatentes prontos para marchar contra ameaças no deserto.</p>
+                    <div class="custo-lista">Custo: 40 Alimento | 20 Madeira</div>
+                    <button class="btn-acao" onclick="treinarSoldado()">Recrutar Infante</button>
                 </div>
 
+                <div class="card-acao" style="border: 2px solid #ff3333; background: rgba(255,200,200,0.4);">
+                    <h4>Acampamentos Bárbaros</h4>
+                    <p>Inimigos detectados no quadrante norte do deserto.</p>
+                    <button class="btn-acao" style="background:#cc0000;" onclick="marcharCombate()">Comandar Ataque Militar!</button>
+                </div>
+
+                <h3>Ciência e Império</h3>
                 <div class="card-acao">
-                    <h4>2. Tratados de Medicina</h4>
-                    <div class="progresso-container">
-                        Nível: <strong id="txt-fase-medicina">Nenhum</strong>
-                        <div class="barra-progresso"><div id="prog-medicina" class="progresso-preenchido"></div></div>
-                    </div>
-                    <div class="custo-lista" id="custo-medicina">Requer: Casa da Vida</div>
-                    <button class="btn-acao" id="btn-evoluir-medicina" onclick="desenvolverMedicina()">Pesquisar Medicina</button>
+                    <h4>Biblioteca de Hieróglifos</h4>
+                    <div class="barra-progresso"><div id="prog-escrita" class="progresso-preenchido"></div></div>
+                    <button class="btn-acao" style="margin-top:5px; background:var(--cor-ocre);" onclick="pesquisarEscrita()">Avançar Escrita</button>
+                </div>
+                <div class="card-acao">
+                    <h4>Tratados de Medicina</h4>
+                    <div class="barra-progresso"><div id="prog-medicina" class="progresso-preenchido"></div></div>
+                    <button class="btn-acao" style="margin-top:5px; background:var(--cor-ocre);" onclick="pesquisarMedicina()">Avançar Medicina</button>
                 </div>
             </div>
         </div>
@@ -350,297 +188,412 @@
 </div>
 
 <script>
-    // --- ESTADO INTERNO DO JOGO ---
+    // --- DATABASE & STATE ---
     const jogo = {
-        recursos: { alimento: 200, agua: 150, madeira: 50, pedra: 30, tijolo: 20, papiro: 0, ouro: 10, populacao: 5, maxPopulacao: 10 },
-        estacoes: ['Akhet (Inundação)', 'Peret (Semeadura)', 'Shemu (Colheita)'],
-        estacaoAtualIdx: 0, tempoNoCiclo: 0, duracaoEstacao: 300,
-        progressoEscrita: 0, fasesEscrita: ['Sem Escrita', 'Escribas Iniciados', 'Pictogramas do Nilo', 'Hieróglifos Completos', 'Biblioteca Real'],
-        progressoMedicina: 0, fasesMedicina: ['Sem Medicina', 'Ervanários da Vida', 'Técnicas de Anatomia', 'Cirurgias Básicas', 'Tratado Edwin Smith'],
-        automação: { lenhadores: 0, pedreiras: 0, fazendas: 0 },
-        construcoes: { casaEscribas: 0, casaVida: 0, cabanas: 1 }
+        recursos: { alimento: 300, agua: 200, madeira: 100, pedra: 50, tijolo: 30, ouro: 20, soldados: 0, populacao: 5, maxPop: 10 },
+        automação: { lenhadores: 0, mineradores: 0, fazendeiros: 0 },
+        pesquisas: { escrita: 0, medicina: 0 },
+        horaDia: 12.0, emCombate: false
     };
 
-    const dadosConstrucao = {
-        cabanas: { nome: "Cabana Extra", desc: "+5 de limite populacional.", custo: { madeira: 30, tijolo: 20 } },
-        lenhador: { nome: "Cabana de Lenhador", desc: "Automatiza: Coleta +1 Madeira por segundo.", custo: { madeira: 20, pedra: 10 }, autoKey: "lenhadores" },
-        pedreira: { nome: "Posto de Mineração", desc: "Automatiza: Coleta +1 Pedra por segundo.", custo: { madeira: 40, tijolo: 15 }, autoKey: "pedreiras" },
-        fazenda: { nome: "Campos Irrigados", desc: "Automatiza: Coleta +2 Alimentos por segundo.", custo: { agua: 40, tijolo: 30 }, autoKey: "fazendas" },
-        casaEscribas: { nome: "Casa dos Escribas", desc: "Desbloqueia os avanços da Escrita.", custo: { madeira: 80, pedra: 60, ouro: 20 }, unica: true },
-        casaVida: { nome: "Casa da Vida", desc: "Desbloqueia os avanços da Medicina.", custo: { tijolo: 100, pedra: 80, ouro: 30 }, unica: true }
+    const custosObras = {
+        cabana: { nome: "Cabana de Barro Reforçado", desc: "Aumenta vagas de habitação para +5 egípcios.", custo: { tijolo: 40, madeira: 25 }, acao: () => { jogo.recursos.maxPop += 5; criarModeloCasa(); } },
+        postoLenhador: { nome: "Acampamento de Lenhadores", desc: "Desbloqueia um camponês que colhe madeira sozinho.", custo: { madeira: 30, pedra: 15 }, acao: () => { jogo.automação.lenhadores++; criarAldeao(0x5a3d28); } },
+        minaCalcario: { nome: "Posto de Mineração", desc: "Envia um trabalhador escavar pedreiras automaticamente.", custo: { madeira: 50, tijolo: 30 }, acao: () => { jogo.automação.mineradores++; criarAldeao(0xb0a48a); } },
+        fazendaNilo: { nome: "Campos de Cultivo Hidro-Agrícola", desc: "Produz muito alimento de forma automatizada por segundo.", custo: { agua: 50, tijolo: 40 }, acao: () => { jogo.automação.fazendeiros++; } }
     };
 
-    // --- ENGINE GRÁFICA 3D REAL (Visão de cima / Top-down RoK) ---
+    // --- ENGINE GRAPHICA 3D AVANÇADA ---
     let cena, camera, renderizador, controles, raycaster, mouse;
-    let objetosInterativos = [];
+    let listaRecursosClicaveis = [];
+    let listaAldeoes3D = [];
+    let solLuz, luzAmbiente, grupoTochasVila;
+    let meshExercito, meshBarbaro;
 
-    function inicializarMundo3D() {
+    function inicializarReino3D() {
         const container = document.getElementById('canvas-3d');
         
         cena = new THREE.Scene();
-        cena.background = new THREE.Color(0xe5c17a); // Areia quente de fundo
-        cena.fog = new THREE.FogExp2(0xe5c17a, 0.012);
+        cena.background = new THREE.Color(0xd9b468);
+        cena.fog = new THREE.FogExp2(0xd9b468, 0.01);
 
-        // Câmera estilo Estratégia em Tempo Real (Inclinada olhando de cima)
         camera = new THREE.PerspectiveCamera(40, container.clientWidth / container.clientHeight, 1, 1000);
-        camera.position.set(0, 55, 55);
+        camera.position.set(0, 65, 70);
 
         renderizador = new THREE.WebGLRenderer({ antialias: true });
         renderizador.setSize(container.clientWidth, container.clientHeight);
         renderizador.shadowMap.enabled = true;
+        renderizador.shadowMap.type = THREE.PCFSoftShadowMap;
         container.appendChild(renderizador.domElement);
 
         controles = new THREE.OrbitControls(camera, renderizador.domElement);
         controles.enableDamping = true;
         controles.dampingFactor = 0.05;
-        controles.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE }; // Botão esquerdo livre para cliques!
-        controles.target.set(0, 0, 0);
+        controles.mouseButtons = { LEFT: null, MIDDLE: THREE.MOUSE.DOLLY, RIGHT: THREE.MOUSE.ROTATE };
+        controles.maxPolarAngle = Math.PI / 2.2;
 
-        // Iluminação avançada
-        const luzAmbiente = new THREE.AmbientLight(0xfff5e6, 0.7);
+        // --- SISTEMA DE ILUMINAÇÃO INTELIGENTE (CICLO DIA/NOITE) ---
+        luzAmbiente = new THREE.AmbientLight(0xfff3db, 0.6);
         cena.add(luzAmbiente);
 
-        const sol = new THREE.DirectionalLight(0xffffff, 0.9);
-        sol.position.set(30, 60, 20);
-        sol.castShadow = true;
-        cena.add(sol);
+        solLuz = new THREE.DirectionalLight(0xffffff, 1.0);
+        solLuz.position.set(40, 80, 20);
+        solLuz.castShadow = true;
+        solLuz.shadow.mapSize.width = 2048;
+        solLuz.shadow.mapSize.height = 2048;
+        cena.add(solLuz);
 
-        // Chão (Deserto)
-        const geoChao = new THREE.PlaneGeometry(300, 300);
-        const matChao = new THREE.MeshStandardMaterial({ color: 0xe2b13c, roughness: 0.9 });
+        grupoTochasVila = new THREE.Group();
+        cena.add(grupoTochasVila);
+
+        // --- TERRENO COM TEXTURIZACAO PROCEDURAL AVANÇADA ---
+        const geoChao = new THREE.PlaneGeometry(400, 400, 10, 10);
+        const matChao = new THREE.MeshStandardMaterial({ color: 0xe2b13c, roughness: 0.9, metalness: 0.05 });
         const chao = new THREE.Mesh(geoChao, matChao);
         chao.rotation.x = -Math.PI / 2;
+        chao.receiveShadow = true;
         cena.add(chao);
 
-        // O Rio Nilo (Centro do mapa)
-        const geoRio = new THREE.PlaneGeometry(40, 300);
-        const matRio = new THREE.MeshStandardMaterial({ color: 0x145a7a, roughness: 0.1 });
+        // O Rio Nilo Texturizado (Brilhante e Metálico)
+        const geoRio = new THREE.PlaneGeometry(45, 400);
+        const matRio = new THREE.MeshStandardMaterial({ color: 0x114b6e, roughness: 0.1, metalness: 0.6 });
         const rio = new THREE.Mesh(geoRio, matRio);
         rio.rotation.x = -Math.PI / 2;
-        rio.position.set(45, 0.1, 0);
+        rio.position.set(50, 0.1, 0);
+        rio.receiveShadow = true;
         cena.add(rio);
 
-        // Raycaster para capturar cliques nos modelos 3D
         raycaster = new THREE.Raycaster();
         mouse = new THREE.Vector2();
+        window.addEventListener('click', aoClicarNoMundo);
 
-        window.addEventListener('click', onMapaClick);
+        // Populate Map
+        repopularFlorestasEDepositos();
+        criarModeloCasa(); // Primeira cabana gratuita
+        construirAcampamentoBarbaro3D();
 
-        // Gerar recursos clicáveis e modelos no mapa
-        gerarRecursosNoMapa();
-        atualizarModelosVila3D();
-
-        function animar() {
-            requestAnimationFrame(animar);
+        // RUN ANIMATION LOOP
+        function tick() {
+            requestAnimationFrame(tick);
+            processarCicloSol();
+            processarMovimentacaoAldeoes();
+            processarMarchaMilitar();
             controles.update();
             renderizador.render(cena, camera);
         }
-        animar();
+        tick();
     }
 
-    // --- GERADOR DE MODELOS 3D MELHORADOS ---
-    function gerarRecursosNoMapa() {
-        // Criar Árvores (Tronco cilíndrico + Folhas cônicas empilhadas)
-        for(let i=0; i<10; i++) {
-            let grupoArvore = new THREE.Group();
-            
-            let geoTronco = new THREE.CylinderGeometry(0.4, 0.6, 4);
-            let matTronco = new THREE.MeshStandardMaterial({ color: 0x5a3d28 });
-            let tronco = new THREE.Mesh(geoTronco, matTronco);
-            tronco.position.y = 2;
-            grupoArvore.add(tronco);
-
-            let geoFolhas = new THREE.ConeGeometry(2.5, 4, 5);
-            let matFolhas = new THREE.MeshStandardMaterial({ color: 0x1b4d3e, roughness: 0.6 });
-            let folhas = new THREE.Mesh(geoFolhas, matFolhas);
-            folhas.position.y = 4.5;
-            grupoArvore.add(folhas);
-
-            grupoArvore.position.set(-25 + Math.random()*15, 0, -40 + (i*10));
-            grupoArvore.userData = { tipo: 'madeira', quantidade: 25 };
-            cena.add(grupoArvore);
-            objetosInterativos.push(grupoArvore);
-        }
-
-        // Criar Pedras Calcárias (Geometrias facetadas/Dodecaedro)
+    // --- MELHORIAS TEXTURAIS E GERAÇÃO DE MODELOS ---
+    function repopularFlorestasEDepositos() {
+        // Gera Palmeiras Complexas (Copa de folhas geométricas + Textura rugosa no tronco)
         for(let i=0; i<8; i++) {
-            let geoPedra = new THREE.DodecahedronGeometry(2);
-            let matPedra = new THREE.MeshStandardMaterial({ color: 0xb0a48a, roughness: 0.9 });
-            let pedra = new THREE.Mesh(geoPedra, matPedra);
+            if (listaRecursosClicaveis.filter(r => r.userData.tipo === 'madeira').length >= 8) break;
+            let arvore = new THREE.Group();
+            arvore.name = "recurso";
             
-            pedra.position.set(-45 + Math.random()*15, 1, -30 + (i*12));
-            pedra.scale.set(1, 1 + Math.random(), 1);
-            pedra.userData = { tipo: 'pedra', quantidade: 30 };
-            cena.add(pedra);
-            objetosInterativos.push(pedra);
-        }
-    }
+            let tronco = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.6, 5, 6), new THREE.MeshStandardMaterial({ color: 0x422e20, roughness: 0.9 }));
+            tronco.position.y = 2.5;
+            tronco.castShadow = true;
+            arvore.add(tronco);
 
-    function atualizarModelosVila3D() {
-        // Remove prédios antigos para redesenhar
-        let paraRemover = cena.children.filter(c => c.name === "predioVila");
-        paraRemover.forEach(c => cena.remove(c));
-
-        // Desenhar Centro da Vila / Cabanas (Design egípcio com paredes chanfradas)
-        for(let i=0; i<jogo.automação.fazendas + 1; i++) {
-            let geoCasa = new THREE.CylinderGeometry(2, 3, 3, 4); // Forma trapezoidal egípcia
-            let matCasa = new THREE.MeshStandardMaterial({ color: 0xd4a373 });
-            let cabana = new THREE.Mesh(geoCasa, matCasa);
-            cabana.name = "predioVila";
-            cabana.rotation.y = Math.PI/4;
-            cabana.position.set(-10, 1.5, -20 + (i*8));
-            cena.add(cabana);
-        }
-
-        // Casa dos Escribas (Design de Templo com uma Pequena Pirâmide no topo)
-        if(jogo.construcoes.casaEscribas > 0) {
-            let templo = new THREE.Group();
-            templo.name = "predioVila";
-            
-            let base = new THREE.Mesh(new THREE.BoxGeometry(8, 4, 8), new THREE.MeshStandardMaterial({ color: 0x457b9d }));
-            base.position.y = 2;
-            templo.add(base);
-
-            let teto = new THREE.Mesh(new THREE.ConeGeometry(5, 4, 4), new THREE.MeshStandardMaterial({ color: 0xe2b13c }));
-            teto.position.y = 55 / 10; 
-            teto.rotation.y = Math.PI/4;
-            templo.add(teto);
-
-            templo.position.set(10, 0, -15);
-            cena.add(templo);
-        }
-
-        // Casa da Vida (Grande Pirâmide Vermelha Medicinal)
-        if(jogo.construcoes.casaVida > 0) {
-            let piramide = new THREE.Mesh(
-                new THREE.ConeGeometry(7, 8, 4),
-                new THREE.MeshStandardMaterial({ color: 0xe63946, roughness: 0.5 })
-            );
-            piramide.name = "predioVila";
-            piramide.rotation.y = Math.PI/4;
-            piramide.position.set(15, 4, 15);
-            cena.add(piramide);
-        }
-    }
-
-    // --- DETECÇÃO DE CLIQUES DO MOUSE NO MAPA ---
-    function onMapaClick(event) {
-        // Bloqueia clique se clicar na barra ou painel lateral
-        if(event.clientX > window.innerWidth - 360 || event.clientY < 60) return;
-
-        mouse.x = (event.clientX / (window.innerWidth - 360)) * 2 - 1;
-        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
-        raycaster.setFromCamera(mouse, camera);
-        
-        // Verifica se acertou algum objeto interativo (Árvores ou Rochas)
-        let intersects = raycaster.intersectObjects(objetosInterativos, true);
-
-        if(intersects.length > 0) {
-            let atingido = intersects[0].object;
-            // Caso tenha clicado em partes de um grupo (como as folhas da árvore) pega o pai
-            if(atingido.parent && atingido.parent.userData.tipo) atingido = atingido.parent;
-
-            let tipo = atingido.userData.tipo;
-            if(tipo === 'madeira') {
-                jogo.recursos.madeira += 5;
-                emitirNotificacao("+5 Madeira coletada das Palmeiras!");
-            } else if(tipo === 'pedra') {
-                jogo.recursos.pedra += 5;
-                emitirNotificacao("+5 Calcário extraído das Rochas!");
+            // Folhagem Egípcia Estilo Estrela/Cone
+            let matFolha = new THREE.MeshStandardMaterial({ color: 0x14452f, roughness: 0.5 });
+            for(let f=0; f<4; f++) {
+                let folha = new THREE.Mesh(new THREE.ConeGeometry(2, 2, 4), matFolha);
+                folha.position.set(0, 4.5, 0);
+                folha.rotation.z = 0.4 * (f % 2 === 0 ? 1 : -1);
+                folha.rotation.x = 0.4 * (f > 1 ? 1 : -1);
+                arvore.add(folha);
             }
 
-            // Animação simples de escala ao clicar
-            atingido.scale.set(1.2, 1.2, 1.2);
-            setTimeout(() => atingido.scale.set(1, 1, 1), 100);
+            arvore.position.set(-20 + Math.random()*12, 0, -35 + (i*10));
+            arvore.userData = { tipo: 'madeira', saúde: 3 };
+            cena.add(arvore);
+            listaRecursosClicaveis.push(arvore);
+        }
+
+        // Depósitos de Pedra Calcária (Rochas facetadas brilhantes)
+        for(let i=0; i<6; i++) {
+            if (listaRecursosClicaveis.filter(r => r.userData.tipo === 'pedra').length >= 6) break;
+            let geoRochas = new THREE.IcosahedronGeometry(2, 0);
+            let matRocha = new THREE.MeshStandardMaterial({ color: 0xcccccc, roughness: 0.8, metalness: 0.2 });
+            let pedraMesh = new THREE.Mesh(geoRochas, matRocha);
+            pedraMesh.name = "recurso";
+            pedraMesh.castShadow = true;
+            pedraMesh.position.set(-45 + Math.random()*10, 1.2, -25 + (i*12));
+            pedraMesh.scale.set(1, 1.5, 1);
+            pedraMesh.userData = { tipo: 'pedra', saúde: 3 };
+            cena.add(pedraMesh);
+            listaRecursosClicaveis.push(pedraMesh);
+        }
+    }
+
+    function criarModeloCasa() {
+        let casa = new THREE.Group();
+        // Paredes com textura argilosa/ocre clara
+        let base = new THREE.Mesh(new THREE.CylinderGeometry(3, 3.8, 4, 4), new THREE.MeshStandardMaterial({ color: 0xceab7c, roughness: 0.8 }));
+        base.position.y = 2;
+        base.castShadow = true;
+        casa.add(base);
+
+        // Teto de Palha egípcia dourada
+        let teto = new THREE.Mesh(new THREE.BoxGeometry(5.8, 0.5, 5.8), new THREE.MeshStandardMaterial({ color: 0xb8860b, roughness: 0.9 }));
+        teto.position.y = 4.1;
+        casa.add(teto);
+
+        // Adiciona um ponto de luz de tocha na porta para a noite
+        let luzTocha = new THREE.PointLight(0xffaa44, 0, 12);
+        luzTocha.position.set(0, 1.5, 4);
+        casa.add(luzTocha);
+        grupoTochasVila.add(luzTocha);
+
+        casa.position.set(-10 - (Math.random()*10), 0, -10 + (Math.random()*25));
+        cena.add(casa);
+    }
+
+    function construirAcampamentoBarbaro3D() {
+        meshBarbaro = new THREE.Group();
+        // Tenda cônica escura dos invasores
+        let tenda = new THREE.Mesh(new THREE.ConeGeometry(4, 6, 6), new THREE.MeshStandardMaterial({ color: 0x4a1515, roughness: 0.9 }));
+        tenda.position.y = 3;
+        tenda.castShadow = true;
+        meshBarbaro.add(tenda);
+
+        // Estandarte de guerra vermelho
+        let mastro = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.1, 8), new THREE.MeshStandardMaterial({ color: 0x111 }));
+        mastro.position.set(4, 4, 0);
+        meshBarbaro.add(mastro);
+
+        meshBarbaro.position.set(-15, 0, -60);
+        cena.add(meshBarbaro);
+    }
+
+    // --- INTERAÇÃO DE CLIQUE MANUAL ---
+    function aoClicarNoMundo(event) {
+        if(event.clientX > window.innerWidth - 350 || event.clientY < 50) return;
+
+        mouse.x = (event.clientX / (window.innerWidth - 350)) * 2 - 1;
+        mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        raycaster.setFromCamera(mouse, camera);
+
+        let intersecoes = raycaster.intersectObjects(cena.children, true);
+        if(intersecoes.length > 0) {
+            let item = intersecoes[0].object;
+            while (item.parent && item.name !== "recurso" && item.parent !== cena) {
+                item = item.parent;
+            }
+
+            if(item.userData && item.userData.tipo) {
+                let tipo = item.userData.tipo;
+                item.userData.saúde--;
+                
+                if(tipo === 'madeira') { jogo.recursos.madeira += 10; emitirNotificacao("+10 Madeira coletada à força!"); }
+                if(tipo === 'pedra') { jogo.recursos.pedra += 10; emitirNotificacao("+10 Pedra extraída!"); }
+
+                if(item.userData.saúde <= 0) {
+                    emitirNotificacao("Recurso totalmente esgotado! Aguardando renovação da natureza.");
+                    cena.remove(item);
+                    listaRecursosClicaveis = listaRecursosClicaveis.filter(r => r !== item);
+                }
+                atualizarInterface();
+            }
+        }
+    }
+
+    // --- NOVO: SIMULAÇÃO DE ALDEÕES CAMINHANDO (WORLD LIFE) ---
+    function criarAldeao(corVestes) {
+        let boneco = new THREE.Group();
+        // Corpo cilíndrico
+        let corpo = new THREE.Mesh(new THREE.CylinderGeometry(0.4, 0.4, 1.8), new THREE.MeshStandardMaterial({ color: corVestes }));
+        corpo.position.y = 0.9;
+        boneco.add(corpo);
+        // Cabeça esférica
+        let cabeca = new THREE.Mesh(new THREE.SphereGeometry(0.35), new THREE.MeshStandardMaterial({ color: 0xe0ac69 }));
+        cabeca.position.y = 2.0;
+        boneco.add(cabeca);
+
+        boneco.position.set(-10, 0, 0);
+        boneco.userData = { alvoX: -30, alvoZ: -20, carregando: false, timerTrabalho: 0 };
+        cena.add(boneco);
+        listaAldeoes3D.push(boneco);
+    }
+
+    function processarMovimentacaoAldeoes() {
+        listaAldeoes3D.forEach(ald => {
+            // Inteligência artificial simples de vaivém (Vila -> Recursos)
+            let dx = ald.userData.alvoX - ald.position.x;
+            let dz = ald.userData.alvoZ - ald.position.z;
+            let dist = Math.sqrt(dx*dx + dz*dz);
+
+            if(dist > 1) {
+                ald.position.x += (dx / dist) * 0.3;
+                ald.position.z += (dz / dist) * 0.3;
+            } else {
+                // Chegou ao destino, trabalha por alguns frames e inverte rumo
+                ald.userData.timerTrabalho++;
+                if(ald.userData.timerTrabalho > 100) {
+                    ald.userData.timerTrabalho = 0;
+                    ald.userData.carregando = !ald.userData.carregando;
+                    if(ald.userData.carregando) {
+                        ald.userData.alvoX = -10; ald.userData.alvoZ = 5; // Volta pra vila entregar
+                    } else {
+                        ald.userData.alvoX = -40 + Math.random()*20; ald.userData.alvoZ = -20 + Math.random()*30; // Vai pro campo
+                    }
+                }
+            }
+        });
+    }
+
+    // --- NOVO: SISTEMA DE EXÉRCITO & MARCHA MILITAR (ROK) ---
+    function marcharCombate() {
+        if(jogo.recursos.soldados <= 0) { emitirNotificacao("Você não possui tropas no exército para lutar!", true); return; }
+        if(jogo.emCombate) return;
+
+        jogo.emCombate = true;
+        document.getElementById('txt-status-militar').innerText = "Marchando para Guerra";
+        document.getElementById('txt-status-militar').style.color = "red";
+
+        // Instancia esquadrão egípcio na vila
+        meshExercito = new THREE.Group();
+        for(let i=0; i<Math.min(jogo.recursos.soldados, 5); i++) {
+            let soldado = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2, 0.8), new THREE.MeshStandardMaterial({ color: 0xb85c19 }));
+            soldado.position.set((i%3)*1.2, 1, Math.floor(i/3)*1.2);
+            meshExercito.add(soldado);
+        }
+        meshExercito.position.set(-10, 0, 10);
+        cena.add(meshExercito);
+        emitirNotificacao("Legiões reais marchando em direção ao acampamento inimigo!");
+    }
+
+    function processarMarchaMilitar() {
+        if(!jogo.emCombate || !meshExercito) return;
+
+        let alvoX = meshBarbaro.position.x;
+        let alvoZ = meshBarbaro.position.z;
+        let dx = alvoX - meshExercito.position.x;
+        let dz = alvoZ - meshExercito.position.z;
+        let dist = Math.sqrt(dx*dx + dz*dz);
+
+        if(dist > 2) {
+            meshExercito.position.x += (dx / dist) * 0.25;
+            meshExercito.position.z += (dz / dist) * 0.25;
+        } else {
+            // Batalha travada ao encostar!
+            jogo.emCombate = false;
+            cena.remove(meshExercito);
+            
+            let vitoriaMilitar = jogo.recursos.soldados >= 3;
+            if(vitoriaMilitar) {
+                jogo.recursos.ouro += 40;
+                jogo.recursos.alimento += 100;
+                emitirNotificacao("Vitória Esmagadora! Bárbaros eliminados. Saques: +40 Ouro, +100 Alimento.");
+                // Teleporta acampamento para outro canto como se fosse um novo surgindo
+                meshBarbaro.position.set(-15 - Math.random()*20, 0, -50 - Math.random()*20);
+            } else {
+                jogo.recursos.soldados = 0;
+                emitirNotificacao("Suas tropas foram derrotadas devido à inferioridade numérica!", true);
+            }
+            document.getElementById('txt-status-militar').innerText = "Paz";
+            document.getElementById('txt-status-militar').style.color = "#ffcc00";
             atualizarInterface();
         }
     }
 
-    // --- SISTEMA DE AUTOMATIZAÇÃO (ESTILO ROO) ---
-    function rodarLoopEconomia() {
-        // Executado a cada 1 segundo para recursos automatizados
+    // --- NOVO: CICLO DIA/NOITE REALISTA ---
+    function processarCicloSol() {
+        jogo.horaDia += 0.015;
+        if(jogo.horaDia >= 24) jogo.horaDia = 0;
+
+        let angulo = (jogo.horaDia / 24) * Math.PI * 2;
+        solLuz.position.set(Math.cos(angulo) * 80, Math.sin(angulo) * 80, 20);
+
+        // Altera cores do ambiente dependendo do horário do sol
+        if(jogo.horaDia > 6 && jogo.horaDia < 18) { // Dia
+            solLuz.intensity = 1.1;
+            luzAmbiente.color.setHex(0xfff3db);
+            grupoTochasVila.children.forEach(t => t.intensity = 0); // Desliga tochas
+            document.getElementById('res-hora').innerText = `${Math.floor(jogo.horaDia)}:00 (Dia)`;
+        } else { // Noite
+            solLuz.intensity = 0.05; // Escuro absoluto lunar
+            luzAmbiente.color.setHex(0x223355); // Tom azul escuro de noite
+            grupoTochasVila.children.forEach(t => t.intensity = 2.5); // Acende as tochas das cabanas
+            document.getElementById('res-hora').innerText = `${Math.floor(jogo.horaDia)}:00 (Noite)`;
+        }
+    }
+
+    // --- LOOP ECONÔMICO E AUTOMATIZAÇÕES ---
+    function inicializarEconomiaDeSegundos() {
         setInterval(() => {
             if(document.getElementById('modal-tutorial').style.display === 'flex') return;
 
-            // Ganhos automáticos baseados nas estruturas construídas
-            if(jogo.automação.lenhadores > 0) {
-                jogo.recursos.madeira += jogo.automação.lenhadores * 1;
-            }
-            if(jogo.automação.pedreiras > 0) {
-                jogo.recursos.pedra += jogo.automação.pedreiras * 1;
-            }
-            if(jogo.automação.fazendas > 0) {
-                jogo.recursos.alimento += jogo.automação.fazendas * 2;
-                jogo.recursos.agua += jogo.automação.fazendas * 0.5;
+            // Produções Automatizadas dos Operários de Rise of Kingdoms
+            if(jogo.automação.lenhadores > 0) jogo.recursos.madeira += jogo.automação.lenhadores * 2;
+            if(jogo.automação.mineradores > 0) jogo.recursos.pedra += jogo.automação.mineradores * 1.5;
+            if(jogo.automação.fazendeiros > 0) {
+                jogo.recursos.alimento += jogo.automação.fazendeiros * 3;
+                jogo.recursos.agua += jogo.automação.fazendeiros * 2;
             }
 
-            // Consumo populacional básico
+            // Geração natural passiva de barro perto do Nilo
+            jogo.recursos.tijolo += 0.5;
+
+            // Consumo orgânico
             jogo.recursos.alimento = Math.max(0, jogo.recursos.alimento - (jogo.recursos.populacao * 0.1));
             jogo.recursos.agua = Math.max(0, jogo.recursos.agua - (jogo.recursos.populacao * 0.1));
 
-            // Produção natural passiva de tijolo pela proximidade ao Nilo
-            jogo.recursos.tijolo += 0.2;
+            // SISTEMA DE RESPAWN: De tempos em tempos faz crescer novas árvores/pedras
+            if(Math.random() < 0.12) {
+                repopularFlorestasEDepositos();
+            }
 
             atualizarInterface();
         }, 1000);
     }
 
-    // --- MÁQUINA DE INTERFACE E CONSTRUÇÃO ---
-    function construirEdificio(chave) {
-        let b = dadosConstrucao[chave];
-        for(let r in b.custo) {
-            if(jogo.recursos[r] < b.custo[r]) {
-                emitirNotificacao("Materiais insuficientes para construir!", true);
+    // --- CONTROLES DE COMPRA E PESQUISAS ---
+    function construirObra(chave) {
+        let obra = custosObras[chave];
+        for(let r in obra.custo) {
+            if(jogo.recursos[r] < obra.custo[r]) {
+                emitirNotificacao("Faltam matérias-primas essenciais!", true);
                 return;
             }
         }
+        for(let r in obra.custo) jogo.recursos[r] -= obra.custo[r];
 
-        // Deduz custos
-        for(let r in b.custo) jogo.recursos[r] -= b.custo[r];
-
-        if(b.autoKey) {
-            jogo.automação[b.autoKey]++;
-            emitirNotificacao(`${b.nome} construída! Produção automatizada ligada.`);
-        } else {
-            jogo.construcoes[chave]++;
-            if(chave === 'cabanas') jogo.recursos.maxPopulacao += 5;
-            if(chave === 'casaEscribas') jogo.progressoEscrita = 1;
-            if(chave === 'casaVida') jogo.progressoMedicina = 1;
-            emitirNotificacao(`${b.nome} erguida no império.`);
-        }
-
+        obra.acao();
+        emitirNotificacao(`${obra.nome} erguido com sucesso!`);
         atualizarInterface();
-        renderizarListaConstrucoes();
-        atualizarModelosVila3D();
     }
 
-    function desenvolverEscrita() {
-        if(jogo.progressoEscrita > 0 && jogo.progressoEscrita < 4) {
-            if(jogo.recursos.madeira >= 40 && jogo.recursos.ouro >= 10) {
-                jogo.recursos.madeira -= 40; jogo.recursos.ouro -= 10;
-                jogo.progressoEscrita++;
-                emitirNotificacao(`Nova tecnologia: ${jogo.fasesEscrita[jogo.progressoEscrita]}`);
-                verificarVitoria();
-                atualizarInterface();
-            } else { emitirNotificacao("Falta ouro ou madeira para pesquisas.", true); }
+    function treinarSoldado() {
+        if(jogo.recursos.alimento >= 40 && jogo.recursos.madeira >= 20) {
+            jogo.recursos.alimento -= 40; jogo.recursos.madeira -= 20;
+            jogo.recursos.soldados++;
+            emitirNotificacao("Infante de elite treinado e alocado no quartel!");
+            atualizarInterface();
+        } else { emitirNotificacao("Insumos alimentares ou de armas baixos!", true); }
+    }
+
+    function pesquisarEscrita() {
+        if(jogo.recursos.ouro >= 15 && jogo.pesquisas.escrita < 100) {
+            jogo.recursos.ouro -= 15; jogo.pesquisas.escrita += 25;
+            emitirNotificacao("Pesquisa sobre escrita avançou!");
+            checarFinal();
         }
     }
 
-    function desenvolverMedicina() {
-        if(jogo.progressoMedicina > 0 && jogo.progressoMedicina < 4) {
-            if(jogo.recursos.alimento >= 50 && jogo.recursos.pedra >= 30) {
-                jogo.recursos.alimento -= 50; jogo.recursos.pedra -= 30;
-                jogo.progressoMedicina++;
-                emitirNotificacao(`Nova descoberta: ${jogo.fasesMedicina[jogo.progressoMedicina]}`);
-                verificarVitoria();
-                atualizarInterface();
-            } else { emitirNotificacao("Faltam insumos na Casa da Vida.", true); }
+    function pesquisarMedicina() {
+        if(jogo.recursos.pedra >= 30 && jogo.pesquisas.medicina < 100) {
+            jogo.recursos.pedra -= 30; jogo.pesquisas.medicina += 25;
+            emitirNotificacao("Pesquisa sobre anatomia e ervas avançou!");
+            checarFinal();
         }
     }
 
-    function verificarVitoria() {
-        if(jogo.progressoEscrita === 4 && jogo.progressoMedicina === 4) {
+    function checarFinal() {
+        if(jogo.pesquisas.escrita >= 100 && jogo.pesquisas.medicina >= 100) {
             document.getElementById('tela-vitoria').style.display = 'flex';
         }
     }
@@ -651,51 +604,46 @@
         document.getElementById('res-madeira').innerText = Math.floor(jogo.recursos.madeira);
         document.getElementById('res-pedra').innerText = Math.floor(jogo.recursos.pedra);
         document.getElementById('res-tijolo').innerText = Math.floor(jogo.recursos.tijolo);
-        document.getElementById('res-papiro').innerText = Math.floor(jogo.recursos.papiro);
         document.getElementById('res-ouro').innerText = Math.floor(jogo.recursos.ouro);
-        document.getElementById('res-populacao').innerText = `${jogo.recursos.populacao} / ${jogo.recursos.maxPopulacao}`;
+        document.getElementById('res-soldados').innerText = `${jogo.recursos.soldados} Soldados`;
+        document.getElementById('res-pop').innerText = `${jogo.recursos.populacao} / ${jogo.recursos.maxPop}`;
 
-        document.getElementById('txt-fase-escrita').innerText = jogo.fasesEscrita[jogo.progressoEscrita];
-        document.getElementById('prog-escrita').style.width = `${(jogo.progressoEscrita / 4) * 100}%`;
-        document.getElementById('txt-fase-medicina').innerText = jogo.fasesMedicina[jogo.progressoMedicina];
-        document.getElementById('prog-medicina').style.width = `${(jogo.progressoMedicina / 4) * 100}%`;
+        document.getElementById('prog-escrita').style.width = `${jogo.pesquisas.escrita}%`;
+        document.getElementById('prog-medicina').style.width = `${jogo.pesquisas.medicina}%`;
     }
 
-    function renderizarListaConstrucoes() {
-        const div = document.getElementById('lista-construcoes');
-        div.innerHTML = '';
-        for (let cabe in dadosConstrucao) {
-            let b = dadosConstrucao[cabe];
-            if(b.unica && (jogo.construcoes[cabe] > 0)) continue;
-
-            let stringCusto = "";
-            for(let r in b.custo) stringCusto += `${b.custo[r]} ${r.toUpperCase()} | `;
-
-            div.innerHTML += `
+    function renderizarMenuObras() {
+        const d = document.getElementById('lista-obras');
+        d.innerHTML = '';
+        for(let k in custosObras) {
+            let o = custosObras[k];
+            let strCusto = "";
+            for(let r in o.custo) strCusto += `${o.custo[r]} ${r.toUpperCase()} | `;
+            d.innerHTML += `
                 <div class="card-acao">
-                    <h4>${b.nome}</h4>
-                    <p>${b.desc}</p>
-                    <div class="custo-lista">Custo: ${stringCusto.slice(0, -3)}</div>
-                    <button class="btn-acao" onclick="construirEdificio('${cabe}')">Erguer Estrutura</button>
+                    <h4>${o.nome}</h4>
+                    <p>${o.desc}</p>
+                    <div class="custo-lista">Custo: ${strCusto.slice(0, -3)}</div>
+                    <button class="btn-acao" onclick="construirObra('${k}')">Comprar e Desenhar</button>
                 </div>
             `;
         }
     }
 
-    function emitirNotificacao(txt, urgente=false) {
+    function emitirNotificacao(t, urg=false) {
         const box = document.getElementById('notificacoes-box');
-        let a = document.createElement('div');
-        a.className = `alerta ${urgente ? 'urgente' : ''}`;
-        a.innerText = txt;
-        box.appendChild(a);
-        setTimeout(() => a.remove(), 4000);
+        let n = document.createElement('div');
+        n.className = `alerta ${urg ? 'urgente' : ''}`;
+        n.innerText = t;
+        box.insertBefore(n, box.firstChild);
+        setTimeout(() => n.remove(), 4000);
     }
 
-    function avançarTutorial() {
+    function fecharTutorial() {
         document.getElementById('modal-tutorial').style.display = 'none';
-        inicializarMundo3D();
-        renderizarListaConstrucoes();
-        rodarLoopEconomia();
+        inicializarReino3D();
+        renderizarMenuObras();
+        inicializarEconomiaDeSegundos();
     }
 
     function mudarAba(id) {
